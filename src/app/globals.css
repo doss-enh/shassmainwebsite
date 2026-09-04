@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 :root {
   --background: #f7f7fb;
@@ -39,4 +40,21 @@
 body {
   background: var(--background);
   color: var(--foreground);
+}
+
+/* Public storefront theme — scoped to the (site) route group so it can
+   match shassgift.com's navy/teal identity without touching the Shass
+   Console admin palette above. */
+.site-theme {
+  --background: #ffffff;
+  --foreground: #171717;
+  --primary: #000066;
+  --primary-dark: #14004d;
+  --primary-soft: #eceeff;
+  --site-accent: #14b8a6;
+  --site-accent-dark: #0f9c8c;
+}
+
+.site-hero-gradient {
+  background: linear-gradient(115deg, #1e2a78 0%, #1e3c72 45%, #14a08f 100%);
 }

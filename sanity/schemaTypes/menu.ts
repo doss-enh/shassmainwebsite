@@ -1,5 +1,4 @@
 import {defineField, defineType} from 'sanity'
-import {MenuIcon} from '@sanity/icons'
 
 const menuItem = {
   type: 'object' as const,
@@ -30,7 +29,6 @@ export default defineType({
   name: 'menu',
   title: 'Menu',
   type: 'document',
-  icon: MenuIcon,
   fields: [
     defineField({name: 'title', title: 'Title', type: 'string', validation: (r) => r.required()}),
     defineField({

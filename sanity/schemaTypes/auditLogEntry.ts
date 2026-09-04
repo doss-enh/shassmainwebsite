@@ -1,11 +1,9 @@
 import {defineField, defineType} from 'sanity'
-import {HistoryIcon} from '@sanity/icons'
 
 export default defineType({
   name: 'auditLogEntry',
   title: 'Audit Log Entry',
   type: 'document',
-  icon: HistoryIcon,
   fields: [
     defineField({name: 'action', title: 'Action', type: 'string'}),
     defineField({name: 'actor', title: 'Actor', type: 'string'}),

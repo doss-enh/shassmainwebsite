@@ -1,11 +1,9 @@
 import {defineField, defineType} from 'sanity'
-import {DocumentTextIcon} from '@sanity/icons'
 
 export default defineType({
   name: 'formSubmission',
   title: 'Form Submission',
   type: 'document',
-  icon: DocumentTextIcon,
   fields: [
     defineField({
       name: 'formType',

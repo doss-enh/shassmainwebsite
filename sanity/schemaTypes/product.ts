@@ -1,11 +1,9 @@
 import {defineField, defineType} from 'sanity'
-import {PackageIcon} from '@sanity/icons'
 
 export default defineType({
   name: 'product',
   title: 'Product',
   type: 'document',
-  icon: PackageIcon,
   groups: [
     {name: 'general', title: 'General', default: true},
     {name: 'media', title: 'Media'},

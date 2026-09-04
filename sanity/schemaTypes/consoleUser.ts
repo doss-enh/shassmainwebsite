@@ -1,11 +1,9 @@
 import {defineField, defineType} from 'sanity'
-import {UserIcon} from '@sanity/icons'
 
 export default defineType({
   name: 'consoleUser',
   title: 'User',
   type: 'document',
-  icon: UserIcon,
   fields: [
     defineField({name: 'name', title: 'Name', type: 'string', validation: (r) => r.required()}),
     defineField({name: 'email', title: 'Email', type: 'string', validation: (r) => r.required()}),

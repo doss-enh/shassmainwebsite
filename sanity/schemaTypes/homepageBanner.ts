@@ -1,11 +1,9 @@
 import {defineField, defineType} from 'sanity'
-import {ImagesIcon} from '@sanity/icons'
 
 export default defineType({
   name: 'homepageBanner',
   title: 'Homepage Banner',
   type: 'document',
-  icon: ImagesIcon,
   fields: [
     defineField({
       name: 'slides',

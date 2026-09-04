@@ -1,11 +1,9 @@
 import {defineField, defineType} from 'sanity'
-import {ArrowRightIcon} from '@sanity/icons'
 
 export default defineType({
   name: 'redirect',
   title: 'Redirect',
   type: 'document',
-  icon: ArrowRightIcon,
   fields: [
     defineField({name: 'source', title: 'Source path', type: 'string', validation: (r) => r.required()}),
     defineField({name: 'destination', title: 'Destination path', type: 'string', validation: (r) => r.required()}),

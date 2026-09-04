@@ -1,11 +1,9 @@
 import {defineField, defineType} from 'sanity'
-import {EnvelopeIcon} from '@sanity/icons'
 
 export default defineType({
   name: 'enquiry',
   title: 'Product Enquiry',
   type: 'document',
-  icon: EnvelopeIcon,
   fields: [
     defineField({name: 'enquiryNumber', title: 'Enquiry number', type: 'string', validation: (r) => r.required()}),
     defineField({

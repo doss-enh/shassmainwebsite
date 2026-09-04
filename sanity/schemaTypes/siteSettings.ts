@@ -1,11 +1,9 @@
 import {defineField, defineType} from 'sanity'
-import {CogIcon} from '@sanity/icons'
 
 export default defineType({
   name: 'siteSettings',
   title: 'Site Settings',
   type: 'document',
-  icon: CogIcon,
   groups: [
     {name: 'general', title: 'General', default: true},
     {name: 'contact', title: 'Contact'},

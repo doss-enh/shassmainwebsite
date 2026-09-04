@@ -65,7 +65,7 @@ export const allNewsletterSubscribersQuery = groq`
 export const allProductsQuery = groq`
   *[_type == "product"] | order(_createdAt desc) {
     _id, name, slug, sku, status, featured, "image": images[0],
-    category->{name}, brand->{name}
+    category->{name, slug}, brand->{name}
   }
 `
 

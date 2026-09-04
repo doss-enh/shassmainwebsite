@@ -1,11 +1,9 @@
 import {defineField, defineType} from 'sanity'
-import {UlistIcon} from '@sanity/icons'
 
 export default defineType({
   name: 'attribute',
   title: 'Attribute',
   type: 'document',
-  icon: UlistIcon,
   fields: [
     defineField({name: 'name', title: 'Name', type: 'string', validation: (r) => r.required(), description: 'e.g. Color, Material, Print Method'}),
     defineField({name: 'slug', title: 'Slug', type: 'slug', options: {source: 'name'}, validation: (r) => r.required()}),
