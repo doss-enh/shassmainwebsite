@@ -1,65 +1,8 @@
 import {groq} from 'next-sanity'
 
-// ---------- Dashboard ----------
-export const dashboardEnquiryCountsQuery = groq`{
-  "needsReply": count(*[_type == "enquiry" && status == "new"]),
-  "inProgress": count(*[_type == "enquiry" && status in ["contacted", "quoted", "negotiation"]]),
-  "last7Days": count(*[_type == "enquiry" && dateTime(createdAt) > dateTime(now()) - 60*60*24*7]),
-  "prev7Days": count(*[_type == "enquiry" && dateTime(createdAt) <= dateTime(now()) - 60*60*24*7 && dateTime(createdAt) > dateTime(now()) - 60*60*24*14]),
-  "won": count(*[_type == "enquiry" && status == "won"]),
-  "lost": count(*[_type == "enquiry" && status == "lost"]),
-  "subscribers": count(*[_type == "newsletterSubscriber" && status == "subscribed"]),
-  "productsLive": count(*[_type == "product" && status == "live"]),
-  "categoriesCount": count(*[_type == "category"]),
-  "formSubmissions": count(*[_type == "formSubmission"]),
-  "pipelineNew": count(*[_type == "enquiry" && status == "new"]),
-  "pipelineContacted": count(*[_type == "enquiry" && status == "contacted"]),
-  "pipelineQuoted": count(*[_type == "enquiry" && status == "quoted"]),
-  "pipelineNegotiation": count(*[_type == "enquiry" && status == "negotiation"]),
-  "pipelineWon": count(*[_type == "enquiry" && status == "won"]),
-  "pipelineLost": count(*[_type == "enquiry" && status == "lost"]),
-  "totalEnquiries": count(*[_type == "enquiry"])
-}`
-
-export const recentEnquiriesQuery = groq`
-  *[_type == "enquiry"] | order(createdAt desc) [0...6] {
-    _id, enquiryNumber, customerName, company, status, createdAt,
-    "itemCount": count(items)
-  }
-`
-
-export const enquiriesOver14DaysQuery = groq`
-  *[_type == "enquiry" && dateTime(createdAt) > dateTime(now()) - 60*60*24*14] {
-    createdAt
-  }
-`
-
-// ---------- Enquiries ----------
-export const allEnquiriesQuery = groq`
-  *[_type == "enquiry"] | order(createdAt desc) {
-    _id, enquiryNumber, customerName, company, email, phone, status, createdAt,
-    "itemCount": count(items)
-  }
-`
-
-export const enquiryByIdQuery = groq`
-  *[_type == "enquiry" && _id == $id][0]{
-    ..., items[]{ ..., product->{_id, name, slug, "image": images[0]} }
-  }
-`
-
-// ---------- Form submissions / Newsletter ----------
-export const allFormSubmissionsQuery = groq`
-  *[_type == "formSubmission"] | order(createdAt desc) {
-    _id, formType, name, email, phone, status, createdAt
-  }
-`
-
-export const allNewsletterSubscribersQuery = groq`
-  *[_type == "newsletterSubscriber"] | order(subscribedAt desc) {
-    _id, email, status, subscribedAt
-  }
-`
+// Enquiries, form submissions, newsletter subscribers, customers, staff
+// users/roles, and the audit log live in Postgres — see src/lib/db/*.
+// This file only holds queries against Sanity's content types.
 
 // ---------- Shop ----------
 export const allProductsQuery = groq`
@@ -67,6 +10,10 @@ export const allProductsQuery = groq`
     _id, name, slug, sku, status, featured, "image": images[0],
     category->{name, slug}, brand->{name}
   }
+`
+
+export const productsByIdsQuery = groq`
+  *[_type == "product" && _id in $ids]{ _id, name, sku, slug, "image": images[0] }
 `
 
 export const productBySlugQuery = groq`
@@ -79,6 +26,9 @@ export const productBySlugQuery = groq`
 export const allCategoriesQuery = groq`*[_type == "category"] | order(order asc) { _id, name, slug, image, parent->{name} }`
 export const allBrandsQuery = groq`*[_type == "brand"] | order(name asc) { _id, name, slug, logo }`
 export const allAttributesQuery = groq`*[_type == "attribute"] | order(name asc) { _id, name, slug, values }`
+
+export const liveProductCountQuery = groq`count(*[_type == "product" && status == "live"])`
+export const categoryCountQuery = groq`count(*[_type == "category"])`
 
 // ---------- Content ----------
 export const allBlogPostsQuery = groq`*[_type == "blogPost"] | order(publishedAt desc) { _id, title, slug, coverImage, author, category, publishedAt }`
@@ -94,12 +44,3 @@ export const menuByLocationQuery = groq`*[_type == "menu" && location == $locati
 // ---------- Settings ----------
 export const siteSettingsQuery = groq`*[_type == "siteSettings"][0]`
 export const allRedirectsQuery = groq`*[_type == "redirect"] | order(source asc)`
-export const allWebhooksQuery = groq`*[_type == "webhook"] | order(name asc)`
-
-// ---------- People & access ----------
-export const allCustomersQuery = groq`*[_type == "customer"] | order(createdAt desc)`
-export const allConsoleUsersQuery = groq`*[_type == "consoleUser"]{ _id, name, email, active, role->{name} }`
-export const allRolesQuery = groq`*[_type == "role"]{ _id, name, permissions }`
-
-// ---------- System ----------
-export const recentAuditLogQuery = groq`*[_type == "auditLogEntry"] | order(createdAt desc) [0...50]`

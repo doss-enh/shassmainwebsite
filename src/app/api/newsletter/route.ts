@@ -1,5 +1,6 @@
 import {NextRequest, NextResponse} from 'next/server'
-import {serverClient} from '@sanity-lib/lib/client'
+import {subscribeToNewsletter} from '@/lib/db/newsletter'
+import {fireWebhooks} from '@/lib/db/webhooks'
 
 export async function POST(req: NextRequest) {
   const {email} = await req.json()
@@ -7,21 +8,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({error: 'A valid email is required.'}, {status: 400})
   }
 
-  const existing = await serverClient.fetch<{_id: string} | null>(
-    `*[_type == "newsletterSubscriber" && email == $email][0]{_id}`,
-    {email}
-  )
-
-  if (existing) {
-    await serverClient.patch(existing._id).set({status: 'subscribed'}).commit()
-  } else {
-    await serverClient.create({
-      _type: 'newsletterSubscriber',
-      email,
-      status: 'subscribed',
-      subscribedAt: new Date().toISOString(),
-    })
-  }
+  await subscribeToNewsletter(email)
+  await fireWebhooks('newsletter_subscriber.created', {email})
 
   return NextResponse.json({ok: true})
 }

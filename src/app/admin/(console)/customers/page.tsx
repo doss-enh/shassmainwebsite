@@ -1,49 +1,28 @@
-import {client} from '@sanity-lib/lib/client'
-import {allCustomersQuery} from '@sanity-lib/lib/queries'
+import {listCustomers} from '@/lib/db/customers'
 import {PageHeader} from '@/components/admin/PageHeader'
 import {DataTable} from '@/components/admin/DataTable'
-import {StudioLinkButton} from '@/components/admin/StudioLinkButton'
-import {studioCreateUrl, studioEditUrl} from '@/lib/studio'
 import {formatDateTime} from '@/lib/format'
 
 export const dynamic = 'force-dynamic'
 
-type Customer = {_id: string; name: string; email?: string; phone?: string; company?: string; createdAt: string}
-
-async function getCustomers() {
-  try {
-    return await client.fetch<Customer[]>(allCustomersQuery)
-  } catch {
-    return []
-  }
-}
-
 export default async function CustomersPage() {
-  const customers = await getCustomers()
+  const customers = await listCustomers().catch(() => [])
 
   return (
     <div>
       <PageHeader
         title="Customers"
-        description={`${customers.length} customers`}
-        action={<StudioLinkButton href={studioCreateUrl('customer')} label="New customer" />}
+        description={`${customers.length} customers — built automatically from enquiries`}
       />
-      <DataTable<Customer>
-        rows={customers}
-        emptyMessage="No customers yet."
+      <DataTable
+        rows={customers.map((c) => ({...c, _id: c.id}))}
+        emptyMessage="No customers yet. They're created automatically the first time someone submits an enquiry."
         columns={[
-          {
-            header: 'Name',
-            render: (c) => (
-              <a href={studioEditUrl('customer', c._id)} className="font-medium hover:text-primary">
-                {c.name}
-              </a>
-            ),
-          },
+          {header: 'Name', render: (c) => <span className="font-medium">{c.name}</span>},
           {header: 'Company', render: (c) => c.company || '—'},
-          {header: 'Email', render: (c) => <span className="text-muted">{c.email || '—'}</span>},
+          {header: 'Email', render: (c) => <span className="text-muted">{c.email}</span>},
           {header: 'Phone', render: (c) => c.phone || '—'},
-          {header: 'Added', render: (c) => <span className="text-muted">{formatDateTime(c.createdAt)}</span>},
+          {header: 'Added', render: (c) => <span className="text-muted">{formatDateTime(c.created_at)}</span>},
         ]}
       />
     </div>

@@ -1,4 +1,5 @@
 import {client} from '@sanity-lib/lib/client'
+import {sql} from '@/lib/db'
 import {PageHeader} from '@/components/admin/PageHeader'
 
 export const dynamic = 'force-dynamic'
@@ -6,6 +7,15 @@ export const dynamic = 'force-dynamic'
 async function checkSanityRead() {
   try {
     await client.fetch(`*[0]`)
+    return true
+  } catch {
+    return false
+  }
+}
+
+async function checkDatabase() {
+  try {
+    await sql`select 1`
     return true
   } catch {
     return false
@@ -30,7 +40,12 @@ function CheckRow({label, ok, detail}: {label: string; ok: boolean; detail?: str
 export default async function HealthPage() {
   const projectIdConfigured = !!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
   const writeTokenConfigured = !!process.env.SANITY_API_WRITE_TOKEN
-  const sanityReachable = projectIdConfigured && (await checkSanityRead())
+  const databaseUrlConfigured = !!process.env.DATABASE_URL
+
+  const [sanityReachable, databaseReachable] = await Promise.all([
+    projectIdConfigured ? checkSanityRead() : Promise.resolve(false),
+    databaseUrlConfigured ? checkDatabase() : Promise.resolve(false),
+  ])
 
   return (
     <div>
@@ -38,8 +53,9 @@ export default async function HealthPage() {
       <div className="max-w-xl overflow-hidden rounded-xl border border-border bg-card">
         <CheckRow label="Sanity project configured" ok={projectIdConfigured} detail="NEXT_PUBLIC_SANITY_PROJECT_ID" />
         <CheckRow label="Sanity dataset reachable" ok={sanityReachable} detail={process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'} />
-        <CheckRow label="Write access (console mutations)" ok={writeTokenConfigured} detail="SANITY_API_WRITE_TOKEN" />
-        <CheckRow label="Admin console password set" ok={!!process.env.ADMIN_CONSOLE_PASSWORD} detail="ADMIN_CONSOLE_PASSWORD" />
+        <CheckRow label="Sanity write access (imports, revalidation)" ok={writeTokenConfigured} detail="SANITY_API_WRITE_TOKEN" />
+        <CheckRow label="Postgres configured" ok={databaseUrlConfigured} detail="DATABASE_URL" />
+        <CheckRow label="Postgres reachable" ok={databaseReachable} detail="Enquiries, users, sessions, audit log" />
       </div>
     </div>
   )

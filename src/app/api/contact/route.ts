@@ -1,5 +1,6 @@
 import {NextRequest, NextResponse} from 'next/server'
-import {serverClient} from '@sanity-lib/lib/client'
+import {createFormSubmission} from '@/lib/db/formSubmissions'
+import {fireWebhooks} from '@/lib/db/webhooks'
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
@@ -9,17 +10,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({error: 'Name, email, and message are required.'}, {status: 400})
   }
 
-  await serverClient.create({
-    _type: 'formSubmission',
-    formType: 'contact',
-    name,
-    email,
-    phone: phone || undefined,
-    message,
-    payload: JSON.stringify(body),
-    status: 'new',
-    createdAt: new Date().toISOString(),
-  })
+  await createFormSubmission({formType: 'contact', name, email, phone, message, payload: body})
+  await fireWebhooks('form_submission.created', {formType: 'contact', name, email})
 
   return NextResponse.json({ok: true})
 }

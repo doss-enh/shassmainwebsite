@@ -6,7 +6,17 @@ import clsx from 'clsx'
 import {adminNav} from '@/lib/adminNav'
 import {navIconMap} from './iconMap'
 
-export function AdminSidebar({needsReplyCount, orgName}: {needsReplyCount: number; orgName: string}) {
+type SidebarUser = {name: string; email: string; role: string}
+
+export function AdminSidebar({
+  needsReplyCount,
+  orgName,
+  user,
+}: {
+  needsReplyCount: number
+  orgName: string
+  user: SidebarUser
+}) {
   const pathname = usePathname()
 
   return (
@@ -63,11 +73,16 @@ export function AdminSidebar({needsReplyCount, orgName}: {needsReplyCount: numbe
 
       <div className="flex items-center gap-2.5 border-t border-border px-4 py-3">
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-soft text-xs font-semibold text-primary-dark">
-          DE
+          {user.name
+            .split(' ')
+            .map((p) => p[0])
+            .join('')
+            .slice(0, 2)
+            .toUpperCase()}
         </div>
-        <div className="leading-tight">
-          <div className="text-sm font-medium text-foreground">{orgName}</div>
-          <div className="text-xs text-muted">Super Admin</div>
+        <div className="min-w-0 leading-tight">
+          <div className="truncate text-sm font-medium text-foreground">{user.name}</div>
+          <div className="truncate text-xs capitalize text-muted">{user.role.replace('_', ' ')}</div>
         </div>
       </div>
     </aside>

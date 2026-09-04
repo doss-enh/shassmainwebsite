@@ -20,23 +20,32 @@ export default async function AdminLoginPage({
         </div>
 
         <h1 className="mb-1 text-lg font-semibold text-foreground">Sign in</h1>
-        <p className="mb-6 text-sm text-muted">Enter the console password to continue.</p>
+        <p className="mb-6 text-sm text-muted">Sign in with your staff account to continue.</p>
 
         {params.error && (
           <div className="mb-4 rounded-lg bg-danger-soft px-3 py-2 text-sm text-danger">
-            Incorrect password. Please try again.
+            Incorrect email or password. Please try again.
           </div>
         )}
 
         <form action="/api/auth/login" method="post" className="space-y-4">
           <input type="hidden" name="next" value={next} />
           <div>
+            <label className="mb-1.5 block text-sm font-medium text-foreground">Email</label>
+            <input
+              type="email"
+              name="email"
+              required
+              autoFocus
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary-soft"
+            />
+          </div>
+          <div>
             <label className="mb-1.5 block text-sm font-medium text-foreground">Password</label>
             <input
               type="password"
               name="password"
               required
-              autoFocus
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary-soft"
             />
           </div>

@@ -37,6 +37,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# local PGlite data (npm run db:dev)
+/.pgdata
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

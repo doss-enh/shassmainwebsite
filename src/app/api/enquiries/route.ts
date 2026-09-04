@@ -1,14 +1,11 @@
 import {NextRequest, NextResponse} from 'next/server'
-import {serverClient} from '@sanity-lib/lib/client'
+import {client} from '@sanity-lib/lib/client'
+import {productsByIdsQuery} from '@sanity-lib/lib/queries'
+import {urlFor} from '@sanity-lib/lib/image'
+import {createEnquiry} from '@/lib/db/enquiries'
+import {fireWebhooks} from '@/lib/db/webhooks'
 
-async function nextEnquiryNumber() {
-  const year = new Date().getFullYear()
-  const count = await serverClient.fetch<number>(
-    `count(*[_type == "enquiry" && enquiryNumber match $prefix])`,
-    {prefix: `ENQ-${year}-*`}
-  )
-  return `ENQ-${year}-${String(count + 1).padStart(4, '0')}`
-}
+type SanityProduct = {_id: string; name: string; sku?: string; slug?: {current: string}; image?: any}
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
@@ -21,25 +18,39 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({error: 'At least one product is required.'}, {status: 400})
   }
 
-  const enquiryNumber = await nextEnquiryNumber()
+  const productIds: string[] = items.map((i: {productId: string}) => i.productId)
+  let products: SanityProduct[] = []
+  try {
+    products = await client.fetch<SanityProduct[]>(productsByIdsQuery, {ids: productIds})
+  } catch {
+    products = []
+  }
+  const productById = new Map(products.map((p) => [p._id, p]))
 
-  const doc = await serverClient.create({
-    _type: 'enquiry',
-    enquiryNumber,
-    status: 'new',
-    customerName,
-    company: company || undefined,
-    email,
-    phone: phone || undefined,
-    message: message || undefined,
-    source: 'website',
-    createdAt: new Date().toISOString(),
-    items: items.map((item: {productId: string; quantity?: number}) => ({
-      _key: crypto.randomUUID(),
-      product: {_type: 'reference', _ref: item.productId},
+  const enquiryItems = items.map((item: {productId: string; quantity?: number; note?: string}) => {
+    const product = productById.get(item.productId)
+    return {
+      productId: item.productId,
+      productName: product?.name || 'Unknown product',
+      productSku: product?.sku,
+      productUrl: product?.slug?.current ? `/products/${product.slug.current}` : undefined,
+      imageUrl: urlFor(product?.image)?.width(200).height(200).url(),
       quantity: item.quantity || 1,
-    })),
+      note: item.note,
+    }
   })
 
-  return NextResponse.json({id: doc._id, enquiryNumber})
+  const {id, enquiryNumber} = await createEnquiry({
+    customerName,
+    company,
+    email,
+    phone,
+    message,
+    source: 'website',
+    items: enquiryItems,
+  })
+
+  await fireWebhooks('enquiry.created', {id, enquiryNumber, customerName, email})
+
+  return NextResponse.json({id, enquiryNumber})
 }
