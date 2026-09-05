@@ -73,7 +73,7 @@ export default async function HomePage() {
       <HeroCarousel slides={slides} gridImages={gridImages} />
 
       {categories.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 py-16">
+        <section className="site-container py-16">
           <h2 className="mb-6 text-sm font-semibold uppercase tracking-wide text-neutral-500">Choose category</h2>
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-5 md:grid-cols-9">
             {categories.map((c) => {
@@ -96,7 +96,7 @@ export default async function HomePage() {
       )}
 
       <section className="border-t border-neutral-100 bg-neutral-50 py-16">
-        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 sm:grid-cols-3">
+        <div className="site-container grid grid-cols-1 gap-8 px-4 sm:grid-cols-3">
           {whyUs.map((item) => (
             <div key={item.title} className="text-center">
               <div className="text-3xl">{item.icon}</div>
@@ -108,7 +108,7 @@ export default async function HomePage() {
       </section>
 
       {featured.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 pb-16">
+        <section className="site-container pb-16">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="text-2xl font-semibold text-neutral-900">Featured products</h2>
             <Link href="/products" className="text-sm font-medium text-primary hover:underline">

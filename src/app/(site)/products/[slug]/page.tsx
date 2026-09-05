@@ -50,7 +50,7 @@ export default async function ProductDetailPage({params}: {params: Promise<{slug
           {label: product.title},
         ]}
       />
-      <div className="mx-auto max-w-6xl px-4 py-12">
+      <div className="site-container py-12">
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
         <div>
           <div className="aspect-square overflow-hidden rounded-xl bg-neutral-100">

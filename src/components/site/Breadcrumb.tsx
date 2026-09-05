@@ -3,7 +3,7 @@ import Link from 'next/link'
 export function Breadcrumb({trail}: {trail: {label: string; href?: string}[]}) {
   return (
     <div className="border-b border-neutral-100 bg-neutral-50">
-      <div className="mx-auto max-w-6xl px-4 py-3 text-[13px] text-neutral-500">
+      <div className="site-container py-3 text-[13px] text-neutral-500">
         <Link href="/" className="text-primary hover:underline">
           Home
         </Link>

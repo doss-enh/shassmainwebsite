@@ -26,7 +26,7 @@ export function HeroCarousel({slides, gridImages}: {slides: HeroSlide[]; gridIma
 
   return (
     <section className="site-hero-gradient relative overflow-hidden">
-      <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-8 px-4 py-16 md:grid-cols-2">
+      <div className="relative site-container grid grid-cols-1 items-center gap-8 px-4 py-16 md:grid-cols-2">
         <div className="text-white">
           <h1 className="text-4xl font-extrabold uppercase leading-tight sm:text-5xl">
             {slide.heading.split('\n').map((line, i) => (

@@ -35,7 +35,7 @@ export async function Footer() {
   return (
     <footer className="border-t border-neutral-200">
       <div className="bg-neutral-900">
-        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-4 py-6 text-white sm:grid-cols-5">
+        <div className="site-container grid grid-cols-2 gap-6 px-4 py-6 text-white sm:grid-cols-5">
           {trustBadges.map((b) => (
             <div key={b.title} className="flex items-start gap-2.5">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="mt-0.5 shrink-0 text-primary-soft">
@@ -51,7 +51,7 @@ export async function Footer() {
       </div>
 
       <div className="bg-neutral-50">
-        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 py-12 sm:grid-cols-2 md:grid-cols-5">
+        <div className="site-container grid grid-cols-1 gap-8 px-4 py-12 sm:grid-cols-2 md:grid-cols-5">
           <div className="sm:col-span-2 md:col-span-1">
             <div className="mb-2 text-base font-semibold text-neutral-900">{settings?.siteName || 'Shass Gift'}</div>
             <p className="text-sm text-neutral-600">{settings?.tagline || 'Corporate gifts, Dubai'}</p>
@@ -118,7 +118,7 @@ export async function Footer() {
         </div>
 
         <div className="border-t border-neutral-200 py-4">
-          <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-4 sm:flex-row">
+          <div className="site-container flex flex-col items-center justify-between gap-3 px-4 sm:flex-row">
             <p className="text-xs text-neutral-500">
               © {new Date().getFullYear()} {settings?.legalName || settings?.siteName || 'Shass Gift'}. All rights reserved.
             </p>

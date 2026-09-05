@@ -1,0 +1,62 @@
+[
+  {
+    "_id": "82ce8835-4b72-4146-b897-4cdaf4c5c98d",
+    "sku": "TEST-123",
+    "slug": "test-product",
+    "title": "Test Product"
+  },
+  {
+    "_id": "product-0d91fab83f003b5cb5c7e8b5",
+    "sku": "TA 1114",
+    "slug": "digital-luggage-scale",
+    "title": "Digital Luggage Scale"
+  },
+  {
+    "_id": "product-1c96f146ccf9ae6b03cc7a9e",
+    "sku": "TA 1029",
+    "slug": "metal-usb-in-round-shape",
+    "title": "Metal USB In Round Shape"
+  },
+  {
+    "_id": "product-4f8bcf2901dc2c05b63211db",
+    "sku": "TA 1055",
+    "slug": "clip-leather-usb",
+    "title": "Clip Leather USB"
+  },
+  {
+    "_id": "product-5ebf790cb4f7f28fa04b5239",
+    "sku": "TA 1097",
+    "slug": "flat-powerbank",
+    "title": "Flat Powerbank"
+  },
+  {
+    "_id": "product-7315af9af818856e468823e8",
+    "sku": "TA 1148",
+    "slug": "spinner-with-charging-cable",
+    "title": "Spinner With Charging Cable"
+  },
+  {
+    "_id": "product-7e03c0dbdbaedfa432b4e1f1",
+    "sku": "TA 1279",
+    "slug": "10w-magsafe-fast-wireless-charger",
+    "title": "10W MagSafe Fast Wireless Charger"
+  },
+  {
+    "_id": "product-7efbdd7cf2b5dd416ea17350",
+    "sku": "TA 1261",
+    "slug": "eco-neutral-3-in-1-bamboo-10w-simultaneous-charging-station",
+    "title": "Eco-Neutral 3-in-1 Bamboo 10W Simultaneous Charging Station"
+  },
+  {
+    "_id": "product-8ab47ad6b4cc18800f64ce31",
+    "sku": "TA 1461",
+    "slug": "ta-1461",
+    "title": "10000 mAh Tempered Glass Powerbank"
+  },
+  {
+    "_id": "product-dd415e179f3b9456ba87c076",
+    "sku": "TA 1090",
+    "slug": "15000-mah-powerbank-with-digital-display",
+    "title": "15000 mAh Powerbank With Digital Display"
+  }
+]

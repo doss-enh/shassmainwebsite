@@ -48,12 +48,38 @@ body {
    Console admin palette above. */
 .site-theme {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #212529;
   --primary: #000066;
   --primary-dark: #14004d;
   --primary-soft: #eceeff;
   --site-secondary: #1e3c72;
   --site-nav-text: #696969;
+
+  /* Body copy uses the system stack at 14px/1.6, as the live site does. */
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--foreground);
+}
+
+/* Headings are Montserrat, the one webfont the live site loads. Only the
+   family is set here — colour stays with the utility classes so a heading
+   on the gradient can still be white. */
+.site-theme h1,
+.site-theme h2,
+.site-theme h3,
+.site-theme h4,
+.site-theme h5,
+.site-theme h6 {
+  font-family: var(--font-montserrat), system-ui, sans-serif;
+}
+
+/* The live layout runs to a 1265px container, wider than Tailwind's 6xl. */
+.site-container {
+  width: 100%;
+  max-width: 1265px;
+  margin-inline: auto;
+  padding-inline: 1rem;
 }
 
 .site-hero-gradient {

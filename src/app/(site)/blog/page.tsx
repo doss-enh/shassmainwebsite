@@ -28,7 +28,7 @@ export default async function BlogPage() {
     <div>
       <Breadcrumb trail={[{label: 'Blogs'}]} />
 
-      <div className="mx-auto max-w-6xl px-4 py-12">
+      <div className="site-container py-12">
         <h1 className="mb-10 text-center text-3xl font-semibold text-neutral-900">Blogs</h1>
 
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_280px]">

@@ -47,7 +47,7 @@ export async function Header() {
     <header className="sticky top-0 z-30">
       {/* Utility bar */}
       <div className="border-b border-neutral-100 bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-4 py-3">
+        <div className="site-container flex items-center justify-between gap-6 px-4 py-3">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-primary text-sm font-semibold text-white">
               SG
@@ -93,7 +93,7 @@ export async function Header() {
 
       {/* Category / nav bar — same gradient as the hero, so the two read as one band */}
       <div className="site-hero-gradient">
-        <div className="mx-auto flex max-w-6xl items-center gap-6 px-4 py-3">
+        <div className="site-container flex items-center gap-6 px-4 py-3">
           <MegaMenu tree={categoryTree} />
 
           <nav className="hidden items-center gap-6 text-[13px] font-semibold text-white md:flex">

@@ -100,7 +100,7 @@ export default async function ProductsPage({
   return (
     <div>
       <section className="site-hero-gradient relative overflow-hidden">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-4 py-14">
+        <div className="site-container flex items-center justify-between gap-6 px-4 py-14">
           <h1 className="text-4xl font-bold text-white sm:text-5xl">{activeNode?.name || 'All Products'}</h1>
           {heroImages.length > 0 && (
             <div className="hidden gap-4 md:flex">
@@ -114,7 +114,7 @@ export default async function ProductsPage({
         </div>
       </section>
 
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 py-10 lg:grid-cols-[220px_1fr]">
+      <div className="site-container grid grid-cols-1 gap-8 px-4 py-10 lg:grid-cols-[220px_1fr]">
         <aside className="hidden lg:block">
           <div className="mb-2 px-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">Product Categories</div>
           <ul className="overflow-hidden rounded-sm border border-neutral-200">
