@@ -3,6 +3,7 @@ import {allProductsQuery, categoryTreeFlatQuery} from '@sanity-lib/lib/queries'
 import {getStorefrontRoots} from '@/lib/storefrontRoots'
 import {urlFor} from '@sanity-lib/lib/image'
 import {ProductCard} from '@/components/site/ProductCard'
+import {CatalogToolbar} from '@/components/site/CatalogToolbar'
 import {buildCategoryTree, type CategoryNode, type FlatCategory} from '@/lib/categoryTree'
 import Link from 'next/link'
 import clsx from 'clsx'
@@ -12,6 +13,7 @@ export const revalidate = 60
 type Product = {
   _id: string
   title: string
+  _createdAt?: string
   sku?: string
   newProduct?: boolean
   slug?: {current: string}
@@ -61,9 +63,10 @@ const PAGE_SIZE = 40  // matches the live listing
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{category?: string; q?: string; sort?: string; page?: string}>
+  searchParams: Promise<{category?: string; q?: string; sort?: string; page?: string; view?: string}>
 }) {
-  const {category, q, sort, page} = await searchParams
+  const {category, q, sort, page, view} = await searchParams
+  const layout: 'grid' | 'list' = view === 'list' ? 'list' : 'grid'
   const {products, tree} = await getData()
 
   const activeNode = category ? findNode(tree, category) : undefined
@@ -75,8 +78,12 @@ export default async function ProductsPage({
     filtered = filtered.filter((p) => p.title.toLowerCase().includes(needle))
   }
 
-  if (sort === 'name-asc') filtered = [...filtered].sort((a, b) => a.title.localeCompare(b.title))
-  else if (sort === 'name-desc') filtered = [...filtered].sort((a, b) => b.title.localeCompare(a.title))
+  // Same five orderings the live toolbar offers.
+  const byDate = (a: Product, b: Product) => Date.parse(a._createdAt || '') - Date.parse(b._createdAt || '')
+  if (sort === 'name_asc') filtered = [...filtered].sort((a, b) => a.title.localeCompare(b.title))
+  else if (sort === 'name_desc') filtered = [...filtered].sort((a, b) => b.title.localeCompare(a.title))
+  else if (sort === 'date_asc') filtered = [...filtered].sort(byDate)
+  else if (sort === 'date_desc') filtered = [...filtered].sort((a, b) => byDate(b, a))
 
   const currentPage = Math.max(1, Number(page) || 1)
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
@@ -87,16 +94,18 @@ export default async function ProductsPage({
     if (category) params.set('category', category)
     if (q) params.set('q', q)
     if (sort) params.set('sort', sort)
+    if (view) params.set('view', view)
     if (n > 1) params.set('page', String(n))
     const qs = params.toString()
     return qs ? `/products?${qs}` : '/products'
   }
 
-  function sortHref(value: string) {
+  function toolbarHref({sort: nextSort, view: nextView}: {sort?: string; view?: string}) {
     const params = new URLSearchParams()
     if (category) params.set('category', category)
     if (q) params.set('q', q)
-    if (value) params.set('sort', value)
+    if (nextSort) params.set('sort', nextSort)
+    if (nextView) params.set('view', nextView)
     const qs = params.toString()
     return qs ? `/products?${qs}` : '/products'
   }
@@ -160,29 +169,15 @@ export default async function ProductsPage({
         </aside>
 
         <div>
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-neutral-100 pb-3">
-            <p className="text-sm text-neutral-500">{filtered.length} products</p>
-            <div className="flex items-center gap-2 text-[13px]">
-              <span className="text-neutral-500">Sort by</span>
-              <Link href={sortHref('')} className={clsx('rounded-sm border px-2.5 py-1', !sort ? 'border-primary text-primary' : 'border-neutral-200 text-neutral-600 hover:border-neutral-300')}>
-                Default
-              </Link>
-              <Link href={sortHref('name-asc')} className={clsx('rounded-sm border px-2.5 py-1', sort === 'name-asc' ? 'border-primary text-primary' : 'border-neutral-200 text-neutral-600 hover:border-neutral-300')}>
-                A–Z
-              </Link>
-              <Link href={sortHref('name-desc')} className={clsx('rounded-sm border px-2.5 py-1', sort === 'name-desc' ? 'border-primary text-primary' : 'border-neutral-200 text-neutral-600 hover:border-neutral-300')}>
-                Z–A
-              </Link>
-            </div>
-          </div>
+          <CatalogToolbar sort={sort || ''} view={layout} hrefFor={toolbarHref} />
 
           {filtered.length === 0 ? (
             <div className="rounded-sm border border-dashed border-neutral-200 py-24 text-center text-neutral-500">No products found.</div>
           ) : (
             <>
-              <div className="grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              <div className={layout === 'list' ? 'divide-y divide-neutral-200' : 'grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'}>
                 {pageItems.map((p) => (
-                  <ProductCard key={p._id} product={p} />
+                  <ProductCard key={p._id} product={p} layout={layout} />
                 ))}
               </div>
 

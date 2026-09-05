@@ -14,7 +14,7 @@ import {groq} from 'next-sanity'
 // query is never cached and refetches on every render.
 export const allProductsQuery = groq`
   *[_type == "product"] | order(_createdAt desc) {
-    _id, title, slug, sku, featured, newProduct, colors,
+    _id, title, slug, sku, featured, newProduct, _createdAt,
     featuredImage, category->{name, slug}
   }
 `

@@ -15,9 +15,23 @@ type Product = {
  * and SKU centred beneath it. No border and no colour swatches — the live
  * grid is borderless and leaves colour to the product page.
  */
-export function ProductCard({product}: {product: Product}) {
+export function ProductCard({product, layout = 'grid'}: {product: Product; layout?: 'grid' | 'list'}) {
   const img = urlFor(product.featuredImage)?.width(400).height(400).url()
   const href = `/products/${product.slug?.current}`
+
+  if (layout === 'list') {
+    return (
+      <Link href={href} className="group flex items-center gap-5 py-4">
+        <div className="h-24 w-24 shrink-0 overflow-hidden bg-white">
+          {img && <img src={img} alt={product.featuredImage?.alt || product.title} loading="lazy" className="h-full w-full object-contain" />}
+        </div>
+        <div className="min-w-0">
+          <div className="text-sm text-neutral-800 group-hover:text-primary">{product.title}</div>
+          {product.sku && <div className="mt-1 text-[12px] text-neutral-400">{product.sku}</div>}
+        </div>
+      </Link>
+    )
+  }
 
   return (
     <Link href={href} className="group relative block p-2 text-center">
