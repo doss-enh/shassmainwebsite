@@ -1,25 +1,34 @@
 import Link from 'next/link'
 
+/**
+ * 14px, no background bar, #0099cc links and a #212529 current item —
+ * measured off the live page, which renders the crumbs straight onto the
+ * page rather than in a tinted strip.
+ */
 export function Breadcrumb({trail}: {trail: {label: string; href?: string}[]}) {
   return (
-    <div className="border-b border-neutral-100 bg-neutral-50">
-      <div className="site-container py-3 text-[13px] text-neutral-500">
-        <Link href="/" className="text-primary hover:underline">
-          Home
-        </Link>
-        {trail.map((item) => (
-          <span key={item.label}>
-            {' / '}
+    <nav aria-label="Breadcrumb" className="site-container py-4 text-sm text-[#212529]">
+      <ol className="flex flex-wrap items-center gap-x-1.5">
+        <li>
+          <Link href="/" className="text-[#0099cc] hover:underline">
+            Home
+          </Link>
+        </li>
+        {trail.map((item, i) => (
+          <li key={`${item.label}-${i}`} className="flex items-center gap-x-1.5">
+            <span aria-hidden="true" className="text-neutral-400">
+              /
+            </span>
             {item.href ? (
-              <Link href={item.href} className="text-primary hover:underline">
+              <Link href={item.href} className="text-[#0099cc] hover:underline">
                 {item.label}
               </Link>
             ) : (
-              <span>{item.label}</span>
+              <span aria-current="page">{item.label}</span>
             )}
-          </span>
+          </li>
         ))}
-      </div>
-    </div>
+      </ol>
+    </nav>
   )
 }
