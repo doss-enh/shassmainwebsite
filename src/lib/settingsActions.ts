@@ -16,7 +16,15 @@ export async function updateSiteSettings(
     numberFields = [],
     booleanFields = [],
     listFields = [],
-  }: {textFields?: string[]; numberFields?: string[]; booleanFields?: string[]; listFields?: string[]},
+    objectFields = {},
+  }: {
+    textFields?: string[]
+    numberFields?: string[]
+    booleanFields?: string[]
+    listFields?: string[]
+    /** e.g. {address: ['streetAddress', 'locality', 'region', 'country']} — form field names are `${object}.${subField}` */
+    objectFields?: Record<string, string[]>
+  },
   formData: FormData
 ) {
   const id = await getOrCreateSettingsId()
@@ -36,6 +44,14 @@ export async function updateSiteSettings(
   for (const field of listFields) {
     const raw = String(formData.get(field) || '')
     patch[field] = raw.split(',').map((s) => s.trim()).filter(Boolean)
+  }
+  for (const [object, subFields] of Object.entries(objectFields)) {
+    const value: Record<string, string> = {}
+    for (const sub of subFields) {
+      const raw = formData.get(`${object}.${sub}`)
+      if (raw !== null) value[sub] = String(raw)
+    }
+    patch[object] = value
   }
 
   await serverClient.createIfNotExists({_id: id, _type: 'siteSettings'})

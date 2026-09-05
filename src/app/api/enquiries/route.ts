@@ -5,7 +5,7 @@ import {urlFor} from '@sanity-lib/lib/image'
 import {createEnquiry} from '@/lib/db/enquiries'
 import {fireWebhooks} from '@/lib/db/webhooks'
 
-type SanityProduct = {_id: string; name: string; sku?: string; slug?: {current: string}; image?: any}
+type SanityProduct = {_id: string; title: string; sku?: string; slug?: {current: string}; featuredImage?: any}
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
@@ -31,10 +31,10 @@ export async function POST(req: NextRequest) {
     const product = productById.get(item.productId)
     return {
       productId: item.productId,
-      productName: product?.name || 'Unknown product',
+      productName: product?.title || 'Unknown product',
       productSku: product?.sku,
       productUrl: product?.slug?.current ? `/products/${product.slug.current}` : undefined,
-      imageUrl: urlFor(product?.image)?.width(200).height(200).url(),
+      imageUrl: urlFor(product?.featuredImage)?.width(200).height(200).url(),
       quantity: item.quantity || 1,
       note: item.note,
     }

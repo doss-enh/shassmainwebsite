@@ -6,7 +6,7 @@ import {studioCreateUrl, studioEditUrl} from '@/lib/studio'
 
 export const dynamic = 'force-dynamic'
 
-type Redirect = {_id: string; source: string; destination: string; type?: string}
+type Redirect = {_id: string; source: string; destination: string; statusCode?: number; active?: boolean}
 
 async function getRedirects() {
   try {
@@ -38,7 +38,8 @@ export default async function RedirectsSettingsPage() {
             ),
           },
           {header: 'Destination', render: (r) => <span className="font-mono text-xs text-muted">{r.destination}</span>},
-          {header: 'Type', render: (r) => r.type},
+          {header: 'Code', render: (r) => r.statusCode || 301},
+          {header: 'Status', render: (r) => (r.active === false ? 'Inactive' : 'Active')},
         ]}
       />
     </div>

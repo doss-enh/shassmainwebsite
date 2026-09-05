@@ -34,6 +34,7 @@
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
   --color-warning: var(--warning);
+  --color-site-secondary: var(--site-secondary, #1e3c72);
   --font-sans: var(--font-inter);
 }
 
@@ -51,10 +52,10 @@ body {
   --primary: #000066;
   --primary-dark: #14004d;
   --primary-soft: #eceeff;
-  --site-accent: #14b8a6;
-  --site-accent-dark: #0f9c8c;
+  --site-secondary: #1e3c72;
+  --site-nav-text: #696969;
 }
 
 .site-hero-gradient {
-  background: linear-gradient(115deg, #1e2a78 0%, #1e3c72 45%, #14a08f 100%);
+  background: linear-gradient(115deg, #000066 0%, #1e3c72 55%, #14a08f 100%);
 }

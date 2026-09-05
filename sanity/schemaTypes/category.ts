@@ -7,10 +7,10 @@ export default defineType({
   fields: [
     defineField({name: 'name', title: 'Name', type: 'string', validation: (r) => r.required()}),
     defineField({name: 'slug', title: 'Slug', type: 'slug', options: {source: 'name'}, validation: (r) => r.required()}),
-    defineField({name: 'image', title: 'Image', type: 'image'}),
-    defineField({name: 'description', title: 'Description', type: 'text'}),
+    defineField({name: 'image', title: 'Image', type: 'imageWithAlt'}),
     defineField({name: 'parent', title: 'Parent category', type: 'reference', to: [{type: 'category'}]}),
-    defineField({name: 'order', title: 'Sort order', type: 'number', initialValue: 0}),
+    defineField({name: 'sortOrder', title: 'Sort order', type: 'number'}),
+    defineField({name: 'externalId', title: 'External ID', type: 'string', readOnly: true, description: 'Import reference — do not edit'}),
   ],
   preview: {
     select: {title: 'name', media: 'image', subtitle: 'parent.name'},

@@ -1,5 +1,5 @@
 import {client} from '@sanity-lib/lib/client'
-import {allMenusQuery} from '@sanity-lib/lib/queries'
+import {allNavigationMenusQuery} from '@sanity-lib/lib/queries'
 import {PageHeader} from '@/components/admin/PageHeader'
 import {DataTable} from '@/components/admin/DataTable'
 import {StudioLinkButton} from '@/components/admin/StudioLinkButton'
@@ -11,7 +11,7 @@ type Menu = {_id: string; title: string; location: string; items?: any[]}
 
 async function getMenus() {
   try {
-    return await client.fetch<Menu[]>(allMenusQuery)
+    return await client.fetch<Menu[]>(allNavigationMenusQuery)
   } catch {
     return []
   }
@@ -25,16 +25,16 @@ export default async function MenusPage() {
       <PageHeader
         title="Menus"
         description={`${menus.length} menus`}
-        action={<StudioLinkButton href={studioCreateUrl('menu')} label="New menu" />}
+        action={<StudioLinkButton href={studioCreateUrl('navigationMenu')} label="New menu" />}
       />
       <DataTable<Menu>
         rows={menus}
-        emptyMessage="No menus yet. Create a header or footer menu to get started."
+        emptyMessage="No menus yet."
         columns={[
           {
             header: 'Menu',
             render: (m) => (
-              <a href={studioEditUrl('menu', m._id)} className="font-medium hover:text-primary">
+              <a href={studioEditUrl('navigationMenu', m._id)} className="font-medium hover:text-primary">
                 {m.title}
               </a>
             ),

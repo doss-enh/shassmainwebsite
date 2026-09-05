@@ -8,7 +8,7 @@ export default defineType({
     defineField({name: 'question', title: 'Question', type: 'string', validation: (r) => r.required()}),
     defineField({name: 'answer', title: 'Answer', type: 'text', validation: (r) => r.required()}),
     defineField({name: 'category', title: 'Category', type: 'string'}),
-    defineField({name: 'order', title: 'Sort order', type: 'number', initialValue: 0}),
+    defineField({name: 'sortOrder', title: 'Sort order', type: 'number'}),
   ],
   preview: {select: {title: 'question', subtitle: 'category'}},
 })

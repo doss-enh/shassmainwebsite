@@ -2,7 +2,7 @@
 
 import {useState} from 'react'
 import Link from 'next/link'
-import {useEnquiryCart} from '@/components/site/EnquiryCartContext'
+import {useEnquiryCart, lineKey} from '@/components/site/EnquiryCartContext'
 
 export default function EnquiryPage() {
   const {items, removeItem, updateQuantity, clear} = useEnquiryCart()
@@ -23,7 +23,7 @@ export default function EnquiryPage() {
           email: form.get('email'),
           phone: form.get('phone'),
           message: form.get('message'),
-          items: items.map((i) => ({productId: i.productId, quantity: i.quantity})),
+          items: items.map((i) => ({productId: i.productId, quantity: i.quantity, note: i.note})),
         }),
       })
       if (!res.ok) throw new Error()
@@ -67,26 +67,30 @@ export default function EnquiryPage() {
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <ul className="divide-y divide-neutral-200 rounded-xl border border-neutral-200">
-              {items.map((item) => (
-                <li key={item.productId} className="flex items-center gap-3 p-4">
-                  <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-neutral-100">
-                    {item.image && <img src={item.image} alt="" className="h-full w-full object-cover" />}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-medium text-neutral-900">{item.name}</div>
-                  </div>
-                  <input
-                    type="number"
-                    min={1}
-                    value={item.quantity}
-                    onChange={(e) => updateQuantity(item.productId, Number(e.target.value) || 1)}
-                    className="w-20 rounded-lg border border-neutral-300 px-2 py-1.5 text-sm"
-                  />
-                  <button onClick={() => removeItem(item.productId)} className="text-xs text-danger hover:underline">
-                    Remove
-                  </button>
-                </li>
-              ))}
+              {items.map((item) => {
+                const key = lineKey(item)
+                return (
+                  <li key={key} className="flex items-center gap-3 p-4">
+                    <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-neutral-100">
+                      {item.image && <img src={item.image} alt="" className="h-full w-full object-cover" />}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-medium text-neutral-900">{item.name}</div>
+                      {item.note && <div className="truncate text-xs text-neutral-500">{item.note}</div>}
+                    </div>
+                    <input
+                      type="number"
+                      min={1}
+                      value={item.quantity}
+                      onChange={(e) => updateQuantity(key, Number(e.target.value) || 1)}
+                      className="w-20 rounded-lg border border-neutral-300 px-2 py-1.5 text-sm"
+                    />
+                    <button onClick={() => removeItem(key)} className="text-xs text-danger hover:underline">
+                      Remove
+                    </button>
+                  </li>
+                )
+              })}
             </ul>
           </div>
 

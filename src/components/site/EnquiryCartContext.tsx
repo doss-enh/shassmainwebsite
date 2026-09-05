@@ -7,19 +7,26 @@ export type EnquiryCartItem = {
   name: string
   slug: string
   image?: string
+  note?: string
   quantity: number
 }
 
 type CartContextValue = {
   items: EnquiryCartItem[]
   addItem: (item: Omit<EnquiryCartItem, 'quantity'>, quantity?: number) => void
-  removeItem: (productId: string) => void
-  updateQuantity: (productId: string, quantity: number) => void
+  removeItem: (lineKey: string) => void
+  updateQuantity: (lineKey: string, quantity: number) => void
   clear: () => void
 }
 
 const CartContext = createContext<CartContextValue | null>(null)
 const STORAGE_KEY = 'shass_enquiry_cart'
+
+// Lines are keyed by product + variant note, not product alone — otherwise
+// two colours of the same product silently merge into one line.
+export function lineKey(item: {productId: string; note?: string}) {
+  return item.note ? `${item.productId}::${item.note}` : item.productId
+}
 
 export function EnquiryCartProvider({children}: {children: React.ReactNode}) {
   const [items, setItems] = useState<EnquiryCartItem[]>([])
@@ -46,20 +53,21 @@ export function EnquiryCartProvider({children}: {children: React.ReactNode}) {
 
   const addItem = useCallback((item: Omit<EnquiryCartItem, 'quantity'>, quantity = 1) => {
     setItems((prev) => {
-      const existing = prev.find((i) => i.productId === item.productId)
+      const key = lineKey(item)
+      const existing = prev.find((i) => lineKey(i) === key)
       if (existing) {
-        return prev.map((i) => (i.productId === item.productId ? {...i, quantity: i.quantity + quantity} : i))
+        return prev.map((i) => (lineKey(i) === key ? {...i, quantity: i.quantity + quantity} : i))
       }
       return [...prev, {...item, quantity}]
     })
   }, [])
 
-  const removeItem = useCallback((productId: string) => {
-    setItems((prev) => prev.filter((i) => i.productId !== productId))
+  const removeItem = useCallback((key: string) => {
+    setItems((prev) => prev.filter((i) => lineKey(i) !== key))
   }, [])
 
-  const updateQuantity = useCallback((productId: string, quantity: number) => {
-    setItems((prev) => prev.map((i) => (i.productId === productId ? {...i, quantity: Math.max(1, quantity)} : i)))
+  const updateQuantity = useCallback((key: string, quantity: number) => {
+    setItems((prev) => prev.map((i) => (lineKey(i) === key ? {...i, quantity: Math.max(1, quantity)} : i)))
   }, [])
 
   const clear = useCallback(() => setItems([]), [])

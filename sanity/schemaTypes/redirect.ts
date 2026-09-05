@@ -7,13 +7,9 @@ export default defineType({
   fields: [
     defineField({name: 'source', title: 'Source path', type: 'string', validation: (r) => r.required()}),
     defineField({name: 'destination', title: 'Destination path', type: 'string', validation: (r) => r.required()}),
-    defineField({
-      name: 'type',
-      title: 'Redirect type',
-      type: 'string',
-      options: {list: ['301', '302']},
-      initialValue: '301',
-    }),
+    defineField({name: 'statusCode', title: 'Status code', type: 'number', options: {list: [301, 302]}, initialValue: 301}),
+    defineField({name: 'active', title: 'Active', type: 'boolean', initialValue: true}),
+    defineField({name: 'note', title: 'Note', type: 'text'}),
   ],
   preview: {
     select: {source: 'source', destination: 'destination'},

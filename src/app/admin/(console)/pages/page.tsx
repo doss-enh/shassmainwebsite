@@ -7,7 +7,7 @@ import {studioCreateUrl, studioEditUrl} from '@/lib/studio'
 
 export const dynamic = 'force-dynamic'
 
-type Page = {_id: string; title: string; slug?: {current: string}; published?: boolean}
+type Page = {_id: string; title: string; slug?: {current: string}}
 
 async function getPages() {
   try {
@@ -40,7 +40,6 @@ export default async function PagesPage() {
             ),
           },
           {header: 'Slug', render: (p) => <span className="text-muted">/{p.slug?.current}</span>},
-          {header: 'Status', render: (p) => (p.published ? 'Published' : 'Draft')},
         ]}
       />
     </div>

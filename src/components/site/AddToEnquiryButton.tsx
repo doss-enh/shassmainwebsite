@@ -8,11 +8,13 @@ export function AddToEnquiryButton({
   name,
   slug,
   image,
+  note,
 }: {
   productId: string
   name: string
   slug: string
   image?: string
+  note?: string
 }) {
   const {addItem} = useEnquiryCart()
   const [quantity, setQuantity] = useState(1)
@@ -29,7 +31,7 @@ export function AddToEnquiryButton({
       />
       <button
         onClick={() => {
-          addItem({productId, name, slug, image}, quantity)
+          addItem({productId, name, slug, image, note}, quantity)
           setAdded(true)
           setTimeout(() => setAdded(false), 1500)
         }}

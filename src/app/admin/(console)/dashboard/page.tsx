@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import {client} from '@sanity-lib/lib/client'
-import {liveProductCountQuery, categoryCountQuery} from '@sanity-lib/lib/queries'
+import {productCountQuery, categoryCountQuery} from '@sanity-lib/lib/queries'
 import {getDashboardCounts, getRecentEnquiries, getEnquiryCreatedDatesInRange} from '@/lib/db/enquiries'
 import {getSubscribedCount} from '@/lib/db/newsletter'
 import {StatCard} from '@/components/admin/StatCard'
@@ -18,7 +18,7 @@ async function getData() {
     getRecentEnquiries().catch(() => []),
     getEnquiryCreatedDatesInRange(14).catch(() => []),
     getSubscribedCount().catch(() => 0),
-    client.fetch<number>(liveProductCountQuery).catch(() => 0),
+    client.fetch<number>(productCountQuery).catch(() => 0),
     client.fetch<number>(categoryCountQuery).catch(() => 0),
   ])
   return {counts, recent, last14, subscribers, productsLive, categoriesCount}

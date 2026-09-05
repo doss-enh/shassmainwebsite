@@ -1,30 +1,44 @@
+// Objects
+import imageWithAlt from './objects/imageWithAlt'
+import responsiveImage from './objects/responsiveImage'
+import seo from './objects/seo'
+import {variantOption, productVariant, variantAxis, productFaq} from './objects/productVariant'
+import {navSubItem, navItem} from './objects/navItem'
+
+// Documents — matches the real, already-populated Sanity project (see
+// db/schema.sql and src/lib/db/* for what's Postgres instead: enquiries,
+// staff users/sessions, form submissions, newsletter, customers, audit log).
 import siteSettings from './siteSettings'
 import category from './category'
-import brand from './brand'
-import attribute from './attribute'
+import productAttribute from './productAttribute'
 import product from './product'
 import page from './page'
-import blogPost from './blogPost'
+import post from './post'
 import faq from './faq'
-import homepageBanner from './homepageBanner'
-import catalogue from './catalogue'
-import menu from './menu'
+import banner from './banner'
+import navigationMenu from './navigationMenu'
 import redirect from './redirect'
 
-// Enquiries, form submissions, newsletter subscribers, customers, staff
-// users/roles, and the audit log live in Postgres (see db/schema.sql) —
-// Sanity here is content-only, per the build spec's data-layer split.
 export const schemaTypes = [
+  // objects
+  imageWithAlt,
+  responsiveImage,
+  seo,
+  variantOption,
+  productVariant,
+  variantAxis,
+  productFaq,
+  navSubItem,
+  navItem,
+  // documents
   siteSettings,
   category,
-  brand,
-  attribute,
+  productAttribute,
   product,
   page,
-  blogPost,
+  post,
   faq,
-  homepageBanner,
-  catalogue,
-  menu,
+  banner,
+  navigationMenu,
   redirect,
 ]

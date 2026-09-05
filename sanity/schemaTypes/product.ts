@@ -5,65 +5,64 @@ export default defineType({
   title: 'Product',
   type: 'document',
   groups: [
-    {name: 'general', title: 'General', default: true},
+    {name: 'content', title: 'Content', default: true},
     {name: 'media', title: 'Media'},
-    {name: 'details', title: 'Details'},
+    {name: 'categories', title: 'Categories'},
+    {name: 'variations', title: 'Variations'},
+    {name: 'related', title: 'Related'},
     {name: 'seo', title: 'SEO'},
+    {name: 'import', title: 'Import metadata'},
   ],
   fields: [
-    defineField({name: 'name', title: 'Name', type: 'string', validation: (r) => r.required(), group: 'general'}),
-    defineField({name: 'slug', title: 'Slug', type: 'slug', options: {source: 'name'}, validation: (r) => r.required(), group: 'general'}),
-    defineField({name: 'sku', title: 'SKU', type: 'string', group: 'general'}),
+    defineField({name: 'title', title: 'Title', type: 'string', validation: (r) => r.required(), group: 'content'}),
+    defineField({name: 'slug', title: 'Slug', type: 'slug', options: {source: 'title'}, validation: (r) => r.required(), group: 'content'}),
+    defineField({name: 'sku', title: 'SKU', type: 'string', group: 'content'}),
+    defineField({name: 'shortDescription', title: 'Short description', type: 'text', group: 'content'}),
+    defineField({name: 'description', title: 'Description', type: 'array', of: [{type: 'block'}], group: 'content'}),
     defineField({
-      name: 'status',
-      title: 'Status',
-      type: 'string',
-      options: {list: ['draft', 'live', 'archived'], layout: 'radio'},
-      initialValue: 'draft',
-      group: 'general',
-    }),
-    defineField({name: 'featured', title: 'Featured', type: 'boolean', initialValue: false, group: 'general'}),
-    defineField({name: 'category', title: 'Category', type: 'reference', to: [{type: 'category'}], group: 'general'}),
-    defineField({name: 'brand', title: 'Brand', type: 'reference', to: [{type: 'brand'}], group: 'general'}),
-
-    defineField({name: 'images', title: 'Images', type: 'array', of: [{type: 'image', options: {hotspot: true}}], group: 'media'}),
-
-    defineField({name: 'shortDescription', title: 'Short description', type: 'text', group: 'details'}),
-    defineField({name: 'description', title: 'Description', type: 'array', of: [{type: 'block'}], group: 'details'}),
-    defineField({name: 'minOrderQty', title: 'Minimum order quantity', type: 'number', group: 'details'}),
-    defineField({name: 'priceOnRequest', title: 'Price on request', type: 'boolean', initialValue: true, group: 'details'}),
-    defineField({name: 'indicativePrice', title: 'Indicative price (internal reference only)', type: 'number', group: 'details'}),
-    defineField({
-      name: 'attributes',
-      title: 'Attributes',
+      name: 'faqs',
+      title: 'Product FAQs',
       type: 'array',
-      group: 'details',
-      of: [
-        {
-          type: 'object',
-          name: 'productAttribute',
-          fields: [
-            {name: 'attribute', type: 'reference', to: [{type: 'attribute'}]},
-            {name: 'values', type: 'array', of: [{type: 'string'}]},
-          ],
-        },
-      ],
+      of: [{type: 'productFaq'}],
+      group: 'content',
     }),
+
+    defineField({name: 'featuredImage', title: 'Featured image', type: 'imageWithAlt', group: 'media'}),
+    defineField({name: 'gallery', title: 'Gallery', type: 'array', of: [{type: 'imageWithAlt'}], group: 'media'}),
+    defineField({name: 'needsImage', title: 'Needs a real image', type: 'boolean', group: 'media', description: 'Flagged during import — still has only a placeholder/no image'}),
+
+    defineField({name: 'category', title: 'Primary category', type: 'reference', to: [{type: 'category'}], group: 'categories'}),
+    defineField({name: 'additionalCategories', title: 'Additional categories', type: 'array', of: [{type: 'reference', to: [{type: 'category'}]}], group: 'categories'}),
+
+    defineField({name: 'colors', title: 'Colors', type: 'array', of: [{type: 'string'}], group: 'variations'}),
+    defineField({name: 'customizable', title: 'Customizable', type: 'boolean', group: 'variations'}),
+    defineField({name: 'variantAxes', title: 'Variant axes', type: 'array', of: [{type: 'variantAxis'}], group: 'variations'}),
+    defineField({name: 'variants', title: 'Variants', type: 'array', of: [{type: 'productVariant'}], group: 'variations'}),
+    defineField({name: 'minimumOrderQuantity', title: 'Minimum order quantity', type: 'number', group: 'variations'}),
+    defineField({name: 'stockStatus', title: 'Stock status', type: 'string', options: {list: ['instock', 'outofstock', 'backorder']}, group: 'variations'}),
+    defineField({name: 'priceOnRequest', title: 'Price on request', type: 'boolean', initialValue: true, group: 'variations'}),
+
+    defineField({name: 'featured', title: 'Featured', type: 'boolean', group: 'related'}),
+    defineField({name: 'bestSeller', title: 'Best seller', type: 'boolean', group: 'related'}),
+    defineField({name: 'newProduct', title: 'New product', type: 'boolean', group: 'related'}),
+    defineField({name: 'relatedProducts', title: 'Related products', type: 'array', of: [{type: 'reference', to: [{type: 'product'}]}], group: 'related'}),
+    defineField({name: 'crossSellProducts', title: 'Cross-sell products', type: 'array', of: [{type: 'reference', to: [{type: 'product'}]}], group: 'related'}),
+
+    defineField({name: 'seo', title: 'SEO', type: 'seo', group: 'seo'}),
+
+    defineField({name: 'source', title: 'Source', type: 'string', readOnly: true, group: 'import'}),
+    defineField({name: 'externalId', title: 'External ID', type: 'string', readOnly: true, group: 'import'}),
     defineField({
-      name: 'printAreas',
-      title: 'Branding / print areas',
+      name: 'sourceImages',
+      title: 'Source image paths',
       type: 'array',
       of: [{type: 'string'}],
-      group: 'details',
+      readOnly: true,
+      group: 'import',
+      description: 'Raw import paths — pending upload as real Sanity image assets',
     }),
-
-    defineField({name: 'seoTitle', title: 'SEO title', type: 'string', group: 'seo'}),
-    defineField({name: 'seoDescription', title: 'SEO description', type: 'text', group: 'seo'}),
   ],
   preview: {
-    select: {title: 'name', media: 'images.0', subtitle: 'sku', status: 'status'},
-    prepare({title, media, subtitle, status}) {
-      return {title, media, subtitle: [subtitle, status].filter(Boolean).join(' · ')}
-    },
+    select: {title: 'title', media: 'featuredImage', subtitle: 'sku'},
   },
 })

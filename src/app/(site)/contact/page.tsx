@@ -1,64 +1,63 @@
-'use client'
+import {client} from '@sanity-lib/lib/client'
+import {pageBySlugQuery, siteSettingsQuery} from '@sanity-lib/lib/queries'
+import {PortableText} from '@/components/site/PortableText'
+import {ContactForm} from '@/components/site/ContactForm'
+import {Breadcrumb} from '@/components/site/Breadcrumb'
 
-import {useState} from 'react'
+export const revalidate = 300
 
-export default function ContactPage() {
-  const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    const form = e.currentTarget
-    const data = Object.fromEntries(new FormData(form).entries())
-    setStatus('loading')
-    try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(data),
-      })
-      if (!res.ok) throw new Error()
-      setStatus('done')
-      form.reset()
-    } catch {
-      setStatus('error')
-    }
+async function getData() {
+  try {
+    const [page, settings] = await Promise.all([
+      client.fetch(pageBySlugQuery, {slug: 'contact'}),
+      client.fetch(siteSettingsQuery),
+    ])
+    return {page, settings}
+  } catch {
+    return {page: null, settings: null}
   }
+}
+
+export default async function ContactPage() {
+  const {page, settings} = await getData()
+  const address = settings?.address as {streetAddress?: string; locality?: string; region?: string; country?: string} | undefined
+  const addressLine = address ? [address.streetAddress, address.locality, address.region, address.country].filter(Boolean).join(', ') : undefined
+  const mapQuery = addressLine ? encodeURIComponent(addressLine) : undefined
 
   return (
-    <div className="mx-auto max-w-lg px-4 py-16">
-      <h1 className="mb-2 text-3xl font-semibold text-neutral-900">Contact us</h1>
-      <p className="mb-8 text-neutral-600">Have a question that's not about a specific product? Send us a message.</p>
+    <div>
+      <Breadcrumb trail={[{label: page?.title || 'Contact'}]} />
+      <div className="mx-auto max-w-6xl px-4 py-16">
+      <h1 className="mb-8 text-center text-3xl font-bold text-neutral-900">{page?.title || 'Contact'}</h1>
 
-      {status === 'done' ? (
-        <p className="rounded-lg bg-success-soft p-4 text-sm text-success">Thanks — we'll get back to you shortly.</p>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-neutral-900">Name</label>
-            <input name="name" required className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-primary" />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-neutral-900">Email</label>
-            <input type="email" name="email" required className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-primary" />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-neutral-900">Phone</label>
-            <input name="phone" className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-primary" />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-neutral-900">Message</label>
-            <textarea name="message" required rows={5} className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-primary" />
-          </div>
-          <button
-            type="submit"
-            disabled={status === 'loading'}
-            className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-60"
-          >
-            {status === 'loading' ? 'Sending…' : 'Send message'}
-          </button>
-          {status === 'error' && <p className="text-sm text-danger">Something went wrong. Please try again.</p>}
-        </form>
+      {mapQuery && (
+        <div className="mb-10 aspect-[16/6] w-full overflow-hidden rounded-sm border border-neutral-200">
+          <iframe
+            title="Location map"
+            className="h-full w-full"
+            loading="lazy"
+            src={`https://www.google.com/maps?q=${mapQuery}&output=embed`}
+          />
+        </div>
       )}
+
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
+        <div>
+          {page?.body ? (
+            <div className="prose prose-neutral max-w-none">
+              <PortableText value={page.body} />
+            </div>
+          ) : (
+            <p className="text-neutral-600">Have a question that's not about a specific product? Send us a message.</p>
+          )}
+        </div>
+
+        <div className="rounded-sm border border-neutral-200 p-6">
+          <h2 className="mb-4 text-lg font-semibold text-neutral-900">Send us a message</h2>
+          <ContactForm />
+        </div>
+      </div>
+      </div>
     </div>
   )
 }

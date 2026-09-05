@@ -28,18 +28,16 @@ export const adminNav: NavSection[] = [
       {label: 'Products', href: '/admin/products'},
       {label: 'Categories', href: '/admin/categories'},
       {label: 'Attributes', href: '/admin/attributes'},
-      {label: 'Brands', href: '/admin/brands'},
     ],
   },
   {
     title: 'Content',
     items: [
-      {label: 'Homepage banner', href: '/admin/homepage-banner'},
+      {label: 'Banners', href: '/admin/banners'},
       {label: 'Media', href: '/admin/media'},
       {label: 'Pages', href: '/admin/pages'},
       {label: 'Blog posts', href: '/admin/blog-posts'},
       {label: 'FAQs', href: '/admin/faqs'},
-      {label: 'Catalogue', href: '/admin/catalogue'},
     ],
   },
   {
