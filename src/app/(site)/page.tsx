@@ -1,9 +1,19 @@
 import Link from 'next/link'
 import {client} from '@sanity-lib/lib/client'
-import {activeBannersQuery, allCategoriesQuery, allProductsQuery} from '@sanity-lib/lib/queries'
+import {activeBannersQuery, allCategoriesQuery, allProductsQuery, homepageQuery, allFaqsQuery} from '@sanity-lib/lib/queries'
 import {urlFor} from '@sanity-lib/lib/image'
 import {ProductCard} from '@/components/site/ProductCard'
 import {HeroCarousel, type HeroSlide} from '@/components/site/HeroCarousel'
+import {
+  CopyBand,
+  FeaturedBrands,
+  HighlightBand,
+  IconCards,
+  TagPills,
+  CtaButtons,
+  VideoStrip,
+  ClientLogos,
+} from '@/components/site/HomeSections'
 
 export const revalidate = 60
 
@@ -12,50 +22,58 @@ type Category = {_id: string; name: string; slug?: {current: string}; image?: an
 type Product = {
   _id: string
   title: string
+  sku?: string
   slug?: {current: string}
   featuredImage?: any
   featured?: boolean
+  newProduct?: boolean
+  colors?: string[]
   category?: {name: string}
 }
+type Faq = {_id: string; question: string; answer: string}
 
 async function getHomeData() {
   try {
-    const [banners, categories, products] = await Promise.all([
+    const [banners, categories, products, home, faqs] = await Promise.all([
       client.fetch<Banner[]>(activeBannersQuery, {placement: 'homepage-hero'}),
       client.fetch<Category[]>(allCategoriesQuery),
       client.fetch<Product[]>(allProductsQuery),
+      client.fetch<any>(homepageQuery),
+      client.fetch<Faq[]>(allFaqsQuery),
     ])
     return {
       banners,
+      home,
+      faqs,
       categories: categories.filter((c) => !!c.image).slice(0, 9),
-      featured: products.filter((p) => p.featured).slice(0, 8),
+      featured: products.filter((p) => p.featured).slice(0, 12),
       gridImages: products
-        .map((p) => urlFor(p.featuredImage)?.width(220).height(220).url())
+        .map((p) => urlFor(p.featuredImage)?.width(240).height(240).url())
         .filter((u): u is string => !!u)
-        .slice(0, 9),
+        .slice(0, 6),
     }
   } catch {
-    return {banners: [] as Banner[], categories: [] as Category[], featured: [] as Product[], gridImages: [] as string[]}
+    return {
+      banners: [] as Banner[],
+      home: null as any,
+      faqs: [] as Faq[],
+      categories: [] as Category[],
+      featured: [] as Product[],
+      gridImages: [] as string[],
+    }
   }
 }
-
-const whyUs = [
-  {icon: '📦', title: 'Wide Selection', desc: 'Thousands of items across every category, updated regularly.'},
-  {icon: '🎨', title: 'Custom Branding', desc: 'Your logo applied cleanly across materials and finishes.'},
-  {icon: '🤝', title: 'Personal Service', desc: "A dedicated contact who follows your order end to end."},
-]
 
 const fallbackSlide: HeroSlide = {
   id: 'fallback',
   heading: 'Your Business Promotion Tool',
-  subheading:
-    "Branded merchandise and corporate gifts, sourced and personalized for your brand. Add products to your quote list and we'll get back to you fast.",
+  subheading: 'Branded merchandise and corporate gifts, sourced and personalised for your brand.',
   ctaLabel: 'Browse products',
   ctaHref: '/products',
 }
 
 export default async function HomePage() {
-  const {banners, categories, featured, gridImages} = await getHomeData()
+  const {banners, home, faqs, categories, featured, gridImages} = await getHomeData()
 
   const slides: HeroSlide[] =
     banners.length > 0
@@ -70,60 +88,127 @@ export default async function HomePage() {
 
   return (
     <div>
-      {/* Renders straight onto the layout's gradient, continuing the header band. */}
+      {/* 1 — Hero, continuing the header's gradient band */}
       <HeroCarousel slides={slides} gridImages={gridImages} />
 
       <div className="bg-white">
-      {categories.length > 0 && (
-        <section className="site-container py-16">
-          <h2 className="mb-6 text-sm font-semibold uppercase tracking-wide text-neutral-500">Choose category</h2>
-          <div className="grid grid-cols-3 gap-3 sm:grid-cols-5 md:grid-cols-9">
-            {categories.map((c) => {
-              const img = urlFor(c.image)?.width(160).height(160).url()
-              return (
-                <Link
-                  key={c._id}
-                  href={`/products?category=${c.slug?.current}`}
-                  className="group flex flex-col items-center gap-2 rounded-sm border border-neutral-200 p-3 text-center hover:border-primary hover:shadow-sm"
-                >
-                  <div className="aspect-square w-full overflow-hidden bg-neutral-50">
-                    {img && <img src={img} alt="" className="h-full w-full object-cover transition-transform group-hover:scale-105" />}
-                  </div>
-                  <div className="truncate text-xs font-medium uppercase text-neutral-700 group-hover:text-primary">{c.name}</div>
-                </Link>
-              )
-            })}
-          </div>
-        </section>
-      )}
+        {/* 2 — Intro copy */}
+        <CopyBand section={home?.introOne} />
 
-      <section className="border-t border-neutral-100 bg-neutral-50 py-16">
-        <div className="site-container grid grid-cols-1 gap-8 px-4 sm:grid-cols-3">
-          {whyUs.map((item) => (
-            <div key={item.title} className="text-center">
-              <div className="text-3xl">{item.icon}</div>
-              <div className="mt-3 text-base font-semibold text-neutral-900">{item.title}</div>
-              <p className="mt-1 text-sm text-neutral-600">{item.desc}</p>
+        {/* 3 — Category row */}
+        {categories.length > 0 && (
+          <section className="site-container py-10">
+            <h2 className="mb-5 text-base font-bold text-neutral-900">{home?.categoryHeading || 'Choose Category'}</h2>
+            <div className="grid grid-cols-3 gap-4 sm:grid-cols-5 lg:grid-cols-9">
+              {categories.map((c) => {
+                const img = urlFor(c.image)?.width(180).height(180).url()
+                return (
+                  <Link key={c._id} href={`/products?category=${c.slug?.current}`} className="group text-center">
+                    <div className="aspect-square overflow-hidden rounded-sm border border-neutral-200 bg-white p-2 transition-shadow group-hover:shadow-md">
+                      {img && <img src={img} alt="" className="h-full w-full object-contain" />}
+                    </div>
+                    <div className="mt-2 truncate text-[11px] font-medium text-neutral-700 group-hover:text-primary">{c.name}</div>
+                  </Link>
+                )
+              })}
             </div>
-          ))}
-        </div>
-      </section>
+          </section>
+        )}
 
-      {featured.length > 0 && (
-        <section className="site-container pb-16">
-          <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-2xl font-semibold text-neutral-900">Featured products</h2>
-            <Link href="/products" className="text-sm font-medium text-primary hover:underline">
-              View all →
-            </Link>
+        {/* 4 — Second intro copy block */}
+        <CopyBand section={home?.introTwo} />
+
+        {/* 5 — Featured brands */}
+        <FeaturedBrands heading={home?.brandsHeading} tiles={home?.featuredBrands} />
+
+        {/* 6 — Light band */}
+        {(home?.exploreSection?.heading || home?.exploreSection?.body) && (
+          <div className="bg-[#f4f5fb]">
+            <CopyBand section={home.exploreSection} />
           </div>
-          <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
-            {featured.map((p) => (
-              <ProductCard key={p._id} product={p} />
-            ))}
+        )}
+
+        {/* 7 — Gradient highlight band */}
+        <HighlightBand section={home?.highlightSection} image={home?.highlightImage} />
+
+        {/* 8 — Value props */}
+        {(home?.valuePropsSection?.heading || home?.valueProps?.length) && (
+          <CopyBand section={home?.valuePropsSection}>
+            <IconCards cards={home?.valueProps} />
+          </CopyBand>
+        )}
+
+        {/* 9 — Personalisation band */}
+        {(home?.personalisationSection?.heading || home?.personalisationTags?.length) && (
+          <div className="bg-site-secondary">
+            <CopyBand section={home?.personalisationSection} tone="dark">
+              <TagPills tags={home?.personalisationTags} />
+            </CopyBand>
           </div>
-        </section>
-      )}
+        )}
+
+        {/* 10 — Creativity band */}
+        <CopyBand section={home?.creativitySection} />
+
+        {/* 11 — Why businesses choose us */}
+        {(home?.whyUsHeading || home?.whyUsCards?.length) && (
+          <div className="bg-neutral-800">
+            <CopyBand section={{heading: home?.whyUsHeading}} tone="dark">
+              <IconCards cards={home?.whyUsCards} tone="dark" columns={4} />
+            </CopyBand>
+          </div>
+        )}
+
+        {/* 12 — Closing CTA + video strip */}
+        {(home?.closingSection?.heading || home?.closingCtas?.length || home?.videos?.length) && (
+          <CopyBand section={home?.closingSection}>
+            <CtaButtons buttons={home?.closingCtas} />
+            <VideoStrip videos={home?.videos} />
+          </CopyBand>
+        )}
+
+        {/* 13 — Featured products */}
+        {featured.length > 0 && (
+          <div className="bg-neutral-50">
+            <section className="site-container py-12">
+              <div className="mb-6 flex items-center justify-between">
+                <h2 className="text-base font-bold text-neutral-900">Featured products</h2>
+                <Link href="/products" className="text-[13px] font-medium text-primary hover:underline">
+                  View all →
+                </Link>
+              </div>
+              <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-6">
+                {featured.slice(0, 6).map((p) => (
+                  <ProductCard key={p._id} product={p} />
+                ))}
+              </div>
+            </section>
+          </div>
+        )}
+
+        {/* 14 — Clients */}
+        {(home?.clientsSection?.heading || home?.clientLogos?.length) && (
+          <CopyBand section={home?.clientsSection}>
+            <ClientLogos logos={home?.clientLogos} />
+          </CopyBand>
+        )}
+
+        {/* 15 — FAQs */}
+        {faqs.length > 0 && (
+          <CopyBand section={home?.faqSection ?? {heading: 'Frequently Asked Questions'}}>
+            <div className="mt-8 grid grid-cols-1 gap-3 text-left sm:grid-cols-2">
+              {faqs.map((faq) => (
+                <details key={faq._id} className="group rounded-sm border border-neutral-200 bg-neutral-50 px-4 py-3">
+                  <summary className="flex cursor-pointer list-none items-center justify-between text-[13px] font-medium text-neutral-900 marker:content-none">
+                    {faq.question}
+                    <span className="ml-2 shrink-0 text-neutral-400 transition-transform group-open:rotate-45">+</span>
+                  </summary>
+                  <p className="mt-2 text-[13px] text-neutral-600">{faq.answer}</p>
+                </details>
+              ))}
+            </div>
+          </CopyBand>
+        )}
       </div>
     </div>
   )
