@@ -18,9 +18,13 @@ async function getHeaderData() {
       client.fetch<FlatCategory[]>(categoryTreeFlatQuery),
       client.fetch(siteSettingsQuery),
     ])
+    // The flyout's top level is curated in settings; the dataset carries more
+    // top-level categories than the menu is meant to show.
+    const roots = settings?.headerCategories?.length ? settings.headerCategories : topLevel
+
     return {
       items: mainMenu?.items || [],
-      categoryTree: buildCategoryTree(topLevel, flat),
+      categoryTree: buildCategoryTree(roots, flat),
       siteName: settings?.siteName || 'Shass Gift',
       contactPhone: settings?.phone,
       logoUrl: urlFor(settings?.logo)?.height(80).url(),
@@ -108,6 +112,7 @@ export function Header({items, categoryTree, siteName, contactPhone, logoUrl, so
       <div className="site-container flex h-[90px] items-center gap-8">
         <MegaMenu tree={categoryTree} />
 
+        {/* Home is fixed; the rest come from the "main" navigation menu. */}
         <nav className="hidden items-center gap-8 text-sm font-semibold text-white md:flex">
           <Link href="/" className="hover:text-white/75">
             Home

@@ -55,6 +55,16 @@ export default defineType({
       ],
     }),
 
+    defineField({
+      name: 'headerCategories',
+      title: 'Categories in the header menu',
+      type: 'array',
+      group: 'general',
+      of: [{type: 'reference', to: [{type: 'category'}]}],
+      description:
+        'Controls the Product Categories flyout. Leave empty to fall back to every top-level category by sort order.',
+    }),
+
     defineField({name: 'announcementsEnabled', title: 'Show announcement bar', type: 'boolean', group: 'announcements'}),
     defineField({name: 'announcements', title: 'Announcement messages', type: 'array', of: [{type: 'string'}], group: 'announcements'}),
     defineField({

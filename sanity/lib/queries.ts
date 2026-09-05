@@ -54,5 +54,8 @@ export const homepageQuery = groq`*[_type == "homepage"][0]{
 }`
 
 // ---------- Settings ----------
-export const siteSettingsQuery = groq`*[_type == "siteSettings"][0]`
+export const siteSettingsQuery = groq`*[_type == "siteSettings"][0]{
+  ...,
+  headerCategories[]->{_id, name, slug}
+}`
 export const allRedirectsQuery = groq`*[_type == "redirect"] | order(source asc)`
