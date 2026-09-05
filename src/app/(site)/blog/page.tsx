@@ -4,10 +4,20 @@ import {allPostsQuery} from '@sanity-lib/lib/queries'
 import {getStorefrontRoots} from '@/lib/storefrontRoots'
 import {Breadcrumb} from '@/components/site/Breadcrumb'
 import {formatDateTime} from '@/lib/format'
+import {urlFor} from '@sanity-lib/lib/image'
 
 export const revalidate = 300
 
-type Post = {_id: string; title: string; slug?: {current: string}; excerpt?: string; publishedAt?: string}
+type Post = {
+  _id: string
+  title: string
+  slug?: {current: string}
+  excerpt?: string
+  publishedAt?: string
+  mainImage?: any
+  author?: string
+  category?: string
+}
 type Category = {_id: string; name: string; slug?: {current: string}}
 
 async function getData() {
@@ -37,18 +47,35 @@ export default async function BlogPage() {
             {posts.length === 0 ? (
               <p className="text-neutral-500">No posts published yet.</p>
             ) : (
-              <ul className="divide-y divide-neutral-200">
-                {posts.map((post) => (
-                  <li key={post._id} className="py-6 first:pt-0">
-                    <Link href={`/blog/${post.slug?.current}`} className="group block">
-                      <h2 className="text-lg font-bold text-neutral-900 group-hover:text-primary">{post.title}</h2>
-                      {post.publishedAt && (
-                        <div className="mt-1 text-xs text-neutral-500">{formatDateTime(post.publishedAt)}</div>
-                      )}
-                      {post.excerpt && <p className="mt-2 line-clamp-3 text-sm text-neutral-600">{post.excerpt}</p>}
-                    </Link>
-                  </li>
-                ))}
+              <ul className="grid grid-cols-1 gap-8 sm:grid-cols-2">
+                {posts.map((post) => {
+                  const img = urlFor(post.mainImage)?.width(640).height(400).url()
+                  return (
+                    <li key={post._id}>
+                      <Link href={`/blog/${post.slug?.current}`} className="group block">
+                        <div className="aspect-[16/10] overflow-hidden rounded-md bg-neutral-100">
+                          {img && (
+                            <img
+                              src={img}
+                              alt={post.mainImage?.alt || post.title}
+                              loading="lazy"
+                              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            />
+                          )}
+                        </div>
+                        <h2 className="mt-3 line-clamp-2 text-base font-bold text-neutral-900 group-hover:text-primary">
+                          {post.title}
+                        </h2>
+                        <div className="mt-1.5 text-xs text-neutral-500">
+                          {post.author && <span>By {post.author}</span>}
+                          {post.author && post.publishedAt && <span aria-hidden="true"> · </span>}
+                          {post.publishedAt && <span>{formatDateTime(post.publishedAt)}</span>}
+                        </div>
+                        {post.excerpt && <p className="mt-2 line-clamp-3 text-sm text-neutral-600">{post.excerpt}</p>}
+                      </Link>
+                    </li>
+                  )
+                })}
               </ul>
             )}
           </div>

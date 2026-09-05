@@ -60,7 +60,7 @@ export const productCountQuery = groq`count(*[_type == "product" && status != "d
 export const categoryCountQuery = groq`count(*[_type == "category"])`
 
 // ---------- Content ----------
-export const allPostsQuery = groq`*[_type == "post"] | order(publishedAt desc) { _id, title, slug, excerpt, publishedAt }`
+export const allPostsQuery = groq`*[_type == "post"] | order(publishedAt desc) { _id, title, slug, excerpt, publishedAt, mainImage, author, category }`
 export const postBySlugQuery = groq`*[_type == "post" && slug.current == $slug][0]`
 export const allPagesQuery = groq`*[_type == "page"] | order(title asc) { _id, title, slug }`
 export const pageBySlugQuery = groq`*[_type == "page" && slug.current == $slug][0]`
