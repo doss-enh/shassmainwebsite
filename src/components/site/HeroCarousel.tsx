@@ -1,86 +1,105 @@
 'use client'
 
 import Link from 'next/link'
-import {useEffect, useState} from 'react'
+import {useCallback, useEffect, useState} from 'react'
 
 export type HeroSlide = {
   id: string
-  heading: string
+  image?: string
+  alt?: string
+  href?: string
+  /** Only used for slides that have no artwork of their own. */
+  heading?: string
   subheading?: string
-  ctaLabel: string
-  ctaHref: string
+  ctaLabel?: string
 }
 
-/** Rotated-square tile. The inner image counter-rotates so it stays upright. */
-function Diamond({src, size, className = ''}: {src: string; size: number; className?: string}) {
-  return (
-    <div
-      className={`shrink-0 rotate-45 overflow-hidden rounded-[22%] bg-white shadow-lg ${className}`}
-      style={{width: size, height: size}}
-    >
-      <img src={src} alt="" className="h-full w-full -rotate-45 scale-[1.42] object-contain p-[14%]" />
-    </div>
-  )
-}
-
-export function HeroCarousel({slides, gridImages}: {slides: HeroSlide[]; gridImages: string[]}) {
+/**
+ * The slide artwork carries its own headline and product collage, so a slide
+ * is the image — full-bleed, edge to edge. Text is only composed for a slide
+ * that has no image, which keeps the component usable before artwork exists.
+ */
+export function HeroCarousel({slides}: {slides: HeroSlide[]}) {
   const [active, setActive] = useState(0)
+  const count = slides.length
+
+  const go = useCallback((i: number) => setActive(((i % count) + count) % count), [count])
 
   useEffect(() => {
-    if (slides.length < 2) return
-    const id = setInterval(() => setActive((i) => (i + 1) % slides.length), 6000)
+    if (count < 2) return
+    const id = setInterval(() => setActive((i) => (i + 1) % count), 6000)
     return () => clearInterval(id)
-  }, [slides.length])
+  }, [count])
 
-  if (slides.length === 0) return null
+  if (count === 0) return null
   const slide = slides[active]
 
-  // First word stays bold; the rest drops to a lighter weight, as on the
-  // live site's category banners ("Technology Gifts").
-  const words = slide.heading.trim().split(/\s+/)
-  const lead = words[0]
-  const rest = words.slice(1).join(' ')
-
-  const feature = gridImages[0]
-  const row = gridImages.slice(1, 6)
-
   return (
-    <div className="site-container relative pb-16 pt-6">
-      <h1 className="max-w-3xl text-5xl leading-[1.05] text-white sm:text-6xl lg:text-7xl">
-        <span className="font-bold">{lead}</span>
-        {rest && <span className="font-light"> {rest}</span>}
-      </h1>
+    <section className="relative">
+      <div className="relative overflow-hidden">
+        {slide.image ? (
+          <Link href={slide.href || '/products'} aria-label={slide.alt || 'Featured'}>
+            {/* Ratio matches the source artwork so nothing is cropped. */}
+            <div className="relative aspect-[8001/3397] w-full">
+              {slides.map((s, i) =>
+                s.image ? (
+                  <img
+                    key={s.id}
+                    src={s.image}
+                    alt={s.alt || ''}
+                    loading={i === 0 ? 'eager' : 'lazy'}
+                    className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
+                      i === active ? 'opacity-100' : 'opacity-0'
+                    }`}
+                  />
+                ) : null
+              )}
+            </div>
+          </Link>
+        ) : (
+          <div className="site-container py-20 text-white">
+            <h1 className="max-w-3xl text-4xl font-bold leading-tight sm:text-5xl">{slide.heading}</h1>
+            {slide.subheading && <p className="mt-4 max-w-lg text-white/85">{slide.subheading}</p>}
+            <Link
+              href={slide.href || '/products'}
+              className="mt-7 inline-block rounded-sm bg-white px-6 py-3 text-sm font-semibold text-primary hover:bg-white/90"
+            >
+              {slide.ctaLabel || 'Browse products'}
+            </Link>
+          </div>
+        )}
 
-      {slide.subheading && <p className="mt-4 max-w-lg text-white/85">{slide.subheading}</p>}
+        {count > 1 && (
+          <>
+            <div className="absolute inset-x-0 bottom-5 flex justify-center gap-2">
+              {slides.map((s, i) => (
+                <button
+                  key={s.id}
+                  onClick={() => go(i)}
+                  aria-label={`Go to slide ${i + 1}`}
+                  aria-current={i === active}
+                  className={`h-2.5 w-2.5 transition-colors ${i === active ? 'bg-primary' : 'bg-white/70 hover:bg-white'}`}
+                />
+              ))}
+            </div>
 
-      <Link
-        href={slide.ctaHref}
-        className="mt-7 inline-block rounded-md bg-white px-6 py-3 text-sm font-semibold text-primary hover:bg-white/90"
-      >
-        {slide.ctaLabel}
-      </Link>
-
-      <div className="pointer-events-none mt-10 flex items-center justify-between gap-6">
-        <div className="flex items-center gap-12 pl-4 sm:gap-16">
-          {row.map((src, i) => (
-            <Diamond key={i} src={src} size={104} className="ring-4 ring-white/15" />
-          ))}
-        </div>
-        {feature && <Diamond src={feature} size={230} className="hidden xl:block ring-8 ring-white/10" />}
-      </div>
-
-      {slides.length > 1 && (
-        <div className="mt-10 flex justify-center gap-2">
-          {slides.map((s, i) => (
             <button
-              key={s.id}
-              onClick={() => setActive(i)}
-              aria-label={`Show slide ${i + 1}`}
-              className={`h-2 rounded-full transition-all ${i === active ? 'w-7 bg-white' : 'w-2 bg-white/40'}`}
-            />
-          ))}
-        </div>
-      )}
-    </div>
+              onClick={() => go(active - 1)}
+              aria-label="Previous slide"
+              className="absolute left-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/25 text-white hover:bg-black/40 md:flex"
+            >
+              ‹
+            </button>
+            <button
+              onClick={() => go(active + 1)}
+              aria-label="Next slide"
+              className="absolute right-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/25 text-white hover:bg-black/40 md:flex"
+            >
+              ›
+            </button>
+          </>
+        )}
+      </div>
+    </section>
   )
 }

@@ -17,7 +17,14 @@ import {VideoStrip} from '@/components/site/VideoStrip'
 
 export const revalidate = 60
 
-type Banner = {_id: string; heading?: string; subheading?: string; title?: string; cta?: {label?: string; href?: string}}
+type Banner = {
+  _id: string
+  heading?: string
+  subheading?: string
+  title?: string
+  cta?: {label?: string; href?: string}
+  image?: {desktop?: any}
+}
 type Category = {_id: string; name: string; slug?: {current: string}; image?: any}
 type Product = {
   _id: string
@@ -48,10 +55,6 @@ async function getHomeData() {
       // The row is curated in Studio; fall back to top-level categories.
       categories: (home?.categoryRow?.length ? home.categoryRow : categories).slice(0, 9) as Category[],
       featured: products.filter((p) => p.featured).slice(0, 12),
-      gridImages: products
-        .map((p) => urlFor(p.featuredImage)?.width(240).height(240).url())
-        .filter((u): u is string => !!u)
-        .slice(0, 6),
     }
   } catch {
     return {
@@ -60,7 +63,6 @@ async function getHomeData() {
       faqs: [] as Faq[],
       categories: [] as Category[],
       featured: [] as Product[],
-      gridImages: [] as string[],
     }
   }
 }
@@ -70,27 +72,29 @@ const fallbackSlide: HeroSlide = {
   heading: 'Your Business Promotion Tool',
   subheading: 'Branded merchandise and corporate gifts, sourced and personalised for your brand.',
   ctaLabel: 'Browse products',
-  ctaHref: '/products',
+  href: '/products',
 }
 
 export default async function HomePage() {
-  const {banners, home, faqs, categories, featured, gridImages} = await getHomeData()
+  const {banners, home, faqs, categories, featured} = await getHomeData()
 
   const slides: HeroSlide[] =
     banners.length > 0
       ? banners.map((b) => ({
           id: b._id,
-          heading: b.heading || b.title || fallbackSlide.heading,
+          image: urlFor(b.image?.desktop)?.width(2000).quality(85).auto('format').url(),
+          alt: b.image?.desktop?.alt || b.title,
+          href: b.cta?.href?.replace('/collections/', '/products') || '/products',
+          heading: b.heading || b.title,
           subheading: b.subheading,
-          ctaLabel: b.cta?.label || fallbackSlide.ctaLabel,
-          ctaHref: b.cta?.href?.replace('/collections/', '/products') || fallbackSlide.ctaHref,
+          ctaLabel: b.cta?.label,
         }))
       : [fallbackSlide]
 
   return (
     <div>
       {/* 1 — Hero, continuing the header's gradient band */}
-      <HeroCarousel slides={slides} gridImages={gridImages} />
+      <HeroCarousel slides={slides} />
 
       <div className="bg-white">
         {/* 2 — Intro copy */}
