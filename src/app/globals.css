@@ -88,3 +88,10 @@ body {
 .site-hero-gradient {
   background: linear-gradient(100deg, #2d2e83 0%, #2b4d9b 35%, #2b7ba8 65%, #17a398 100%);
 }
+
+/* Client logo strip. The track holds two copies of the list, so shifting it
+   by exactly half its width lands the second copy where the first began. */
+@keyframes shass-marquee {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}

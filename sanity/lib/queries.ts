@@ -23,9 +23,17 @@ export const productsByIdsQuery = groq`
   *[_type == "product" && _id in $ids]{ _id, title, sku, slug, featuredImage, gallery }
 `
 
+// Ancestry is projected three deep because the tree is three levels: the
+// breadcrumb and the "Categories:" meta line both walk it.
 export const productBySlugQuery = groq`
   *[_type == "product" && slug.current == $slug][0]{
-    ..., category->{name, slug}, additionalCategories[]->{name, slug}
+    ...,
+    category->{name, slug, parent->{name, slug, parent->{name, slug}}},
+    additionalCategories[]->{name, slug},
+    "related": *[
+      _type == "product" && _id != ^._id && defined(featuredImage) &&
+      (category._ref == ^.category._ref || _id in ^.relatedProducts[]._ref)
+    ] | order(featured desc)[0...6]{ _id, title, sku, slug, featuredImage }
   }
 `
 

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import {urlFor} from '@sanity-lib/lib/image'
 import {PortableText} from './PortableText'
+import {ClientLogosCarousel} from './ClientLogosCarousel'
 
 export type RichSection = {heading?: string; body?: any[]}
 
@@ -160,16 +161,9 @@ export function CtaButtons({buttons}: {buttons?: CtaButton[]}) {
 
 export function ClientLogos({logos}: {logos?: any[]}) {
   if (!logos?.length) return null
-  return (
-    <div className="mt-8 grid grid-cols-2 border-l border-t border-neutral-200 sm:grid-cols-3 lg:grid-cols-6">
-      {logos.map((logo, i) => {
-        const img = urlFor(logo)?.width(240).height(140).url()
-        return (
-          <div key={i} className="flex aspect-[12/7] items-center justify-center border-b border-r border-neutral-200 p-5">
-            {img && <img src={img} alt={logo?.alt || ''} className="max-h-full max-w-full object-contain" />}
-          </div>
-        )
-      })}
-    </div>
-  )
+  // Live shows these as a moving strip rather than a bordered grid.
+  const items = logos
+    .map((logo) => ({src: urlFor(logo)?.height(140).url() || '', alt: logo?.alt || ''}))
+    .filter((l) => l.src)
+  return <ClientLogosCarousel logos={items} />
 }

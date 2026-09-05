@@ -41,11 +41,22 @@ function findNode(nodes: CategoryNode[], slug: string): CategoryNode | undefined
   return undefined
 }
 
+/** Root-first path down to `slug`, as the live sidebar lists it. */
+function pathTo(nodes: CategoryNode[], slug: string, trail: CategoryNode[] = []): CategoryNode[] | undefined {
+  for (const node of nodes) {
+    const next = [...trail, node]
+    if (node.slug === slug) return next
+    const found = pathTo(node.children, slug, next)
+    if (found) return found
+  }
+  return undefined
+}
+
 function flattenSlugs(node: CategoryNode): string[] {
   return [node.slug, ...node.children.flatMap(flattenSlugs)].filter((s): s is string => !!s)
 }
 
-const PAGE_SIZE = 24
+const PAGE_SIZE = 40  // matches the live listing
 
 export default async function ProductsPage({
   searchParams,
@@ -95,8 +106,7 @@ export default async function ProductsPage({
     .map((p) => urlFor(p.featuredImage)?.width(160).height(160).url())
     .filter((u): u is string => !!u)
 
-  // Sidebar shows the active top-level category's tree, or all top-level categories.
-  const sidebarRoot = activeNode ? tree.find((t) => flattenSlugs(t).includes(activeNode.slug || '')) : undefined
+  const trail = activeNode?.slug ? pathTo(tree, activeNode.slug) || [] : []
 
   return (
     <div className="bg-white">
@@ -117,36 +127,33 @@ export default async function ProductsPage({
 
       <div className="site-container grid grid-cols-1 gap-8 px-4 py-10 lg:grid-cols-[220px_1fr]">
         <aside className="hidden lg:block">
-          <div className="mb-2 px-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">Product Categories</div>
-          <ul className="overflow-hidden rounded-sm border border-neutral-200">
-            {(sidebarRoot ? [sidebarRoot] : tree).map((node) => (
-              <li key={node._id} className="border-b border-neutral-100 last:border-b-0">
+          <div className="mb-3 text-[13px] font-bold uppercase tracking-wide text-neutral-800">Product Categories</div>
+          <ul className="space-y-1.5 text-[13px]">
+            <li>
+              <Link href="/products" className={clsx('block', activeNode ? 'text-neutral-600 hover:text-primary' : 'font-semibold text-primary')}>
+                All categories
+              </Link>
+            </li>
+            {/* The live sidebar walks the ancestry down to the current
+                category, indenting a step at a time, then lists its children. */}
+            {trail.map((node, depth) => (
+              <li key={node._id} style={{paddingLeft: `${(depth + 1) * 12}px`}}>
                 <Link
                   href={`/products?category=${node.slug}`}
                   className={clsx(
-                    'block px-3 py-2 text-[13px] font-medium',
-                    activeNode?._id === node._id ? 'bg-primary text-white' : 'text-neutral-700 hover:bg-neutral-50'
+                    'block',
+                    activeNode?._id === node._id ? 'font-semibold text-primary' : 'text-neutral-600 hover:text-primary'
                   )}
                 >
                   {node.name}
                 </Link>
-                {node.children.length > 0 && (
-                  <ul className="bg-neutral-50">
-                    {node.children.map((child) => (
-                      <li key={child._id}>
-                        <Link
-                          href={`/products?category=${child.slug}`}
-                          className={clsx(
-                            'block px-6 py-1.5 text-[13px]',
-                            activeNode?._id === child._id ? 'font-semibold text-primary' : 'text-neutral-600 hover:text-primary'
-                          )}
-                        >
-                          {child.name}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+              </li>
+            ))}
+            {(activeNode ? activeNode.children : tree).map((child) => (
+              <li key={child._id} style={{paddingLeft: `${(trail.length + 1) * 12}px`}}>
+                <Link href={`/products?category=${child.slug}`} className="block text-neutral-600 hover:text-primary">
+                  {child.name}
+                </Link>
               </li>
             ))}
           </ul>
@@ -173,7 +180,7 @@ export default async function ProductsPage({
             <div className="rounded-sm border border-dashed border-neutral-200 py-24 text-center text-neutral-500">No products found.</div>
           ) : (
             <>
-              <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 xl:grid-cols-4">
+              <div className="grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                 {pageItems.map((p) => (
                   <ProductCard key={p._id} product={p} />
                 ))}
