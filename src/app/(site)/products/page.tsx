@@ -1,5 +1,5 @@
 import {client} from '@sanity-lib/lib/client'
-import {allProductsQuery, categoryTreeFlatQuery} from '@sanity-lib/lib/queries'
+import {allProductsQuery, categoryTreeFlatQuery, rootBannersQuery} from '@sanity-lib/lib/queries'
 import {getStorefrontRoots} from '@/lib/storefrontRoots'
 import {urlFor} from '@sanity-lib/lib/image'
 import {ProductCard} from '@/components/site/ProductCard'
@@ -23,14 +23,15 @@ type Product = {
 
 async function getData() {
   try {
-    const [products, topLevel, flat] = await Promise.all([
+    const [products, topLevel, flat, banners] = await Promise.all([
       client.fetch<Product[]>(allProductsQuery),
       getStorefrontRoots(),
       client.fetch<FlatCategory[]>(categoryTreeFlatQuery),
+      client.fetch<{_id: string; name: string; banner?: any}[]>(rootBannersQuery),
     ])
-    return {products, tree: buildCategoryTree(topLevel, flat)}
+    return {products, tree: buildCategoryTree(topLevel, flat), banners}
   } catch {
-    return {products: [] as Product[], tree: [] as CategoryNode[]}
+    return {products: [] as Product[], tree: [] as CategoryNode[], banners: [] as {_id: string; name: string; banner?: any}[]}
   }
 }
 
@@ -67,7 +68,7 @@ export default async function ProductsPage({
 }) {
   const {category, q, sort, page, view} = await searchParams
   const layout: 'grid' | 'list' = view === 'list' ? 'list' : 'grid'
-  const {products, tree} = await getData()
+  const {products, tree, banners} = await getData()
 
   const activeNode = category ? findNode(tree, category) : undefined
   const activeSlugs = activeNode ? new Set(flattenSlugs(activeNode)) : null
@@ -116,23 +117,18 @@ export default async function ProductsPage({
     .filter((u): u is string => !!u)
 
   const trail = activeNode?.slug ? pathTo(tree, activeNode.slug) || [] : []
+  const rootBanner = trail.length ? banners.find((b) => b._id === trail[0]._id) : undefined
+  const bannerUrl = urlFor(rootBanner?.banner)?.width(2530).url()
 
   return (
     <div className="bg-white">
-      <section className="site-hero-gradient relative overflow-hidden">
-        <div className="site-container flex items-center justify-between gap-6 px-4 py-14">
-          <h1 className="text-4xl font-bold text-white sm:text-5xl">{activeNode?.name || 'All Products'}</h1>
-          {heroImages.length > 0 && (
-            <div className="hidden gap-4 md:flex">
-              {heroImages.map((src, i) => (
-                <div key={i} className="h-20 w-20 rotate-45 overflow-hidden rounded-lg border-2 border-white/80 bg-white shadow-md">
-                  <img src={src} alt="" className="h-full w-full -rotate-45 scale-150 object-cover" />
-                </div>
-              ))}
-            </div>
-          )}
+      {/* Live puts a full-bleed banner here, one per root, inherited by
+          every category beneath it — not a gradient panel. */}
+      {bannerUrl && (
+        <div className="w-full">
+          <img src={bannerUrl} alt={activeNode?.name || 'Shass Gift'} className="h-auto w-full object-cover" />
         </div>
-      </section>
+      )}
 
       <div className="site-container grid grid-cols-1 gap-8 px-4 py-10 lg:grid-cols-[220px_1fr]">
         <aside className="hidden lg:block">

@@ -49,6 +49,8 @@ export const storefrontRootsQuery = groq`
   *[_type == "siteSettings"][0].headerCategories[]->{ _id, name, slug, image }
 `
 export const categoryTreeFlatQuery = groq`*[_type == "category"]{ _id, name, slug, "parentId": parent._ref }`
+// Roots carry the listing banner; descendants inherit it (see getStorefrontRoots).
+export const rootBannersQuery = groq`*[_type == "category" && !defined(parent) && defined(banner)]{ _id, name, banner }`
 export const allProductAttributesQuery = groq`*[_type == "productAttribute"] | order(name asc) { _id, name, slug, showInFilters, values }`
 
 export const productCountQuery = groq`count(*[_type == "product"])`
