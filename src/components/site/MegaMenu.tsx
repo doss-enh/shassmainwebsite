@@ -15,7 +15,7 @@ export function MegaMenu({tree}: {tree: CategoryNode[]}) {
 
   return (
     <div className="relative" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
-      <button className="flex items-center gap-2 text-[13px] font-semibold text-white hover:text-white/80">
+      <button className="flex items-center gap-2.5 text-sm font-semibold text-white hover:text-white/80">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <line x1="3" y1="6" x2="21" y2="6" />
           <line x1="3" y1="12" x2="21" y2="12" />
@@ -31,8 +31,8 @@ export function MegaMenu({tree}: {tree: CategoryNode[]}) {
               <li key={cat._id} onMouseEnter={() => setActiveId(cat._id)}>
                 <Link
                   href={hrefFor(cat.slug)}
-                  className={`flex items-center justify-between px-4 py-2.5 text-[13px] font-medium ${
-                    activeId === cat._id ? 'bg-primary text-white' : 'text-neutral-700 hover:bg-neutral-100'
+                  className={`flex items-center justify-between px-4 py-2.5 text-sm font-semibold ${
+                    activeId === cat._id ? 'bg-primary text-white' : 'text-[#222222] hover:bg-neutral-100'
                   }`}
                 >
                   {cat.name}
@@ -47,14 +47,16 @@ export function MegaMenu({tree}: {tree: CategoryNode[]}) {
               <div className="grid grid-cols-4 gap-x-6 gap-y-5">
                 {active.children.map((sub) => (
                   <div key={sub._id}>
-                    <Link href={hrefFor(sub.slug)} className="text-[13px] font-bold text-teal-600 hover:text-primary">
+                    {/* Live menu: sub-headings and leaves are both 14px in
+                        teal #269B91, the heading bolder. */}
+                    <Link href={hrefFor(sub.slug)} className="text-sm font-bold text-[#269B91] hover:text-primary">
                       {sub.name}
                     </Link>
                     {sub.children.length > 0 && (
                       <ul className="mt-2 space-y-1.5">
                         {sub.children.map((leaf) => (
                           <li key={leaf._id}>
-                            <Link href={hrefFor(leaf.slug)} className="text-[13px] text-neutral-600 hover:text-primary">
+                            <Link href={hrefFor(leaf.slug)} className="text-sm text-[#269B91] hover:text-primary">
                               {leaf.name}
                             </Link>
                           </li>

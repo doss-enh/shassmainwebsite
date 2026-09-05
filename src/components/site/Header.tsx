@@ -51,11 +51,12 @@ function resolveHref(item: NavItem) {
 export function Header({items, categoryTree, siteName, contactPhone, logoUrl, socialLinks}: Awaited<ReturnType<typeof getHeaderData>>) {
   return (
     <div className="relative z-30">
-      {/* Row 1 — logo, search, social, account, phone, cart */}
-      <div className="site-container flex items-center justify-between gap-6 py-4">
-        <Link href="/" className="flex items-center gap-2.5">
+      {/* Row 1 — logo, search, social, account, phone, cart. 80px tall to
+          match the live header, with the logo at its rendered 71px. */}
+      <div className="site-container flex h-20 items-center justify-between gap-6">
+        <Link href="/" className="flex shrink-0 items-center">
           {logoUrl ? (
-            <img src={logoUrl} alt={siteName} className="h-10 w-auto" />
+            <img src={logoUrl} alt={siteName} className="h-[71px] w-auto object-contain" />
           ) : (
             <span className="text-2xl font-bold tracking-tight text-white">{siteName}</span>
           )}
@@ -103,11 +104,11 @@ export function Header({items, categoryTree, siteName, contactPhone, logoUrl, so
         </div>
       </div>
 
-      {/* Row 2 — categories, nav, brochure, recently viewed */}
-      <div className="site-container flex items-center gap-8 pb-4">
+      {/* Row 2 — categories, nav, brochure, recently viewed. 90px on the live site. */}
+      <div className="site-container flex h-[90px] items-center gap-8">
         <MegaMenu tree={categoryTree} />
 
-        <nav className="hidden items-center gap-7 text-[14px] font-semibold text-white md:flex">
+        <nav className="hidden items-center gap-8 text-sm font-semibold text-white md:flex">
           <Link href="/" className="hover:text-white/75">
             Home
           </Link>

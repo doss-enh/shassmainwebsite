@@ -35,12 +35,13 @@ export function HeroCarousel({slides}: {slides: HeroSlide[]}) {
   const slide = slides[active]
 
   return (
-    <section className="relative">
+    <section className="site-container relative px-0">
       <div className="relative overflow-hidden">
         {slide.image ? (
           <Link href={slide.href || '/products'} aria-label={slide.alt || 'Featured'}>
-            {/* Ratio matches the source artwork so nothing is cropped. */}
-            <div className="relative aspect-[8001/3397] w-full">
+            {/* 1265×563 is what the live banner measures at desktop; the
+                artwork is wider than that, so it crops rather than letterboxes. */}
+            <div className="relative aspect-[1265/563] w-full">
               {slides.map((s, i) =>
                 s.image ? (
                   <img
