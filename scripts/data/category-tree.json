@@ -1,0 +1,92 @@
+{
+  "Technology": {
+    "USB Flash Drives": ["Light Up USB","Metal USB","Crystal USB","Plastic USB","Wooden USB","Eco-Friendly USB","Leather USB","Silicone USB","Pen USB"],
+    "Powerbanks": ["Light Up Powerbank","Wireless Powerbank","MagSafe Powerbank","LED Display Powerbank","Inbuilt Cables Powerbank","Eco-Friendly Powerbank","Suction Powerbank","Compact Powerbank"],
+    "Wireless Chargers": ["MagSafe Charger","Light Up Charger","Multifunctional Charger","Eco - Friendly Charger","Round Charger","Mouse Pad Charger","Wireless Charger Mug"],
+    "Desk Tops": ["Desk Organizer","Desktop Charger","Desktop Lamp","Eco - Friendly Desktop"],
+    "Cables": ["Charging Long Cable","Charging Short Cable","Light Up Cable","Multi Cable Set","Hub"],
+    "Portable Speakers": ["Multifunctional Speaker","Light Up Speaker","Eco-Friendly Speaker","Round Speaker"],
+    "Car Accessories": ["Car Adapter","Wireless Car Mount","MagSafe Car Mount"],
+    "Travel Accessories": ["Universal Adapter","Luggage Scale","Key Finder"],
+    "Headphones & Earbuds": ["Headphone","Earbud"],
+    "Mouse & Mouse Pads": ["Mouse","Wireless Mouse","Mouse Pad"],
+    "Watches & Fitness Trackers": ["Watches","Fitness Tracker"]
+  },
+  "Stationery": {
+    "Notebook": ["Wireless Charger Notebook","USB Notebook","RPET Notebook","PU Notebook","Fabric Notebook","Phone Holder Notebook","Magnet Flap Notebook","Eco-Friendly Notebook","Notebook With Pen Set","Notebook Gift Set"],
+    "Organizer": ["MagSafe Organizer","Powerbank Organizer","Wireless Charger Organizer","USB Organizer","Light Up Organizer","Pu Leather Organizer","Magnetic Closure Organizer"],
+    "Pens": ["Metal Pen","Stylus Pen","Plastic Pen","Eco-Friendly Pen","Pen With Box","Plantable Pen"],
+    "Card Holders": ["RFID Block Card Holder","Magnetic Card Holder","Business Card Holder","Sticky Card Holder"],
+    "Pen Boxes": ["Eco-Friendly Pen Box","Leather Pen Box","Plastic Pen Box","Pen Sleeve"],
+    "Pen Holders": ["Clock Pen Holder","Phone Stand Pen Holder","Eco-Friendly Pen Holder","Multifunctional Pen Holder"],
+    "Clocks": ["Desktop Clock","Wall Clock","Eco-Friendly Clock"],
+    "Pencils": ["Pencil","Plantable Pencil"],
+    "Portfolios & Folders": ["Portfolio","Folder"],
+    "Notepads & Sticky Notes": ["Sticky Note","Notepad"],
+    "Highlighters": ["Highlighter"],
+    "Calendar": ["Table Calendar"]
+  },
+  "Premiums": {
+    "Accessories & Gadgets": ["Counter","Find me","RFID Card Protector","Grips","Webcam Cover","Car Mount","Mobile Accessories","Bag Hanger","Lighter","Bakhoor","Car scent"],
+    "Gift Sets": ["Drinkware Set","Stationery Set","Technology Set","Eco-Friendly Set"],
+    "Mobile Holder": ["Eco-Friendly Mobile Holder","Plastic Mobile Holder","Metal Mobile Holder","Multifunctional Mobile Holder"],
+    "Tools & Torches": ["Multi Tool","Torch","Tool Set","Measuring Tape"],
+    "Keychains": ["Eco-Friendly Keychain","Metal Keychain","Leather Keychain"],
+    "Awards": ["Wooden Award","Crystal Award"],
+    "Laptop Stands": ["Laptop Stand"],
+    "Table Top": ["Table Organizer","Candle","Table Matt","Table Decor"],
+    "Car Sunshades": ["Car Sunshade"],
+    "Candies": ["Mint Box"]
+  },
+  "Leisure": {
+    "Travel": ["Hand Fan","Fan","USB Gadgets","Eye Mask","Pillow"],
+    "Leisure Products": ["Beaches","Cheering Sticks","Wrist Straps","Umbrella"],
+    "Fitness": ["Yoga","Exercises","Sports"]
+  },
+  "Kids": {
+    "School Items": ["Ruler","Geometric Set","Writing Set","Pencil Pouch","Marker"],
+    "Coloring Products": ["Color Pencil","Crayons","Color Set","Doodle Mug"],
+    "Pencils": ["Pencil","Plantable Pencil"],
+    "Lunch Boxes": ["Lunch Box"],
+    "Games": ["Puzzle","Yoyo","Domino","Tic Tac Toe","Kids Sunglasses","Toys"]
+  },
+  "Drinkware": {
+    "Mug": ["Ceramic Mug","Smart Mug","Eco-Friendly Mug","Glass Mug","Wheat Straw Mug","Double Wall Mug","Travel Mug","Ceramic Tumbler"],
+    "Bottle": ["Eco-Friendly Bottle","Metal Bottle","Glass Bottle","Plastic Bottle","Aluminium Bottle","Sipper Bottle","Smart Bottle","Transparent Bottle"],
+    "Coaster": ["Eco-friendly Coaster","PU Leather Coaster","Plastic Coaster","Metal Coaster","Coaster Set"],
+    "Tumbler": ["SS Tumbler","Anti Fall Tumbler","Eco-friendly Tumbler","Glass Tumbler"],
+    "Flask": [],
+    "Shaker": []
+  },
+  "Care": {
+    "Medical": ["Nurse Watch","Pill Box","First Aid Kit","Manicure Set","Hot & Cold Pad","Hand Sanitizers"],
+    "Anti Stress Balls": ["Anti stress Ball"],
+    "Compact Mirrors": ["Compact Mirror"]
+  },
+  "Bags": {
+    "Shopping Bags": ["Rpet Bag","Jute Bag","Cotton Bag","Non Woven Bag","Paper Bag"],
+    "Backpacks": ["Rpet Backpack","Anti-Theft Backpack","Casual Backpack","Travel Backpack"],
+    "Wallets": ["Travel Wallet","Card Wallet","Wallet"],
+    "Laptop Bags & Sleeves": ["Laptop Bag","Laptop Sleeve"],
+    "Document & Messenger Bags": ["Document Bag","Messenger Bag","Cross Bag"],
+    "Cooler Bags": ["Cooler Bag"],
+    "String Bags": ["String Bag"],
+    "Luggage Tags": ["Luggage Tag"],
+    "Travel Bags": ["Travel Bag"],
+    "Trolley Bags": ["Trolley Bag"],
+    "Pouches": ["Pouch"]
+  },
+  "Apparels": {
+    "Customized Products": ["Flag","Bean Bag","Pop Up","Canopy Stand","Roll Up"],
+    "T Shirts & Caps": ["Cap","T Shirt","Bandana"],
+    "Safety Products": ["Raincoat","Safety Vest"],
+    "Reel Badges": ["Plastic Reel Badge","Metal Reel Badge"],
+    "ID Card Holders": ["ID Card Holder"],
+    "Kitchen Apparels": ["Kitchen Apparel"],
+    "Sunglasses": ["Sunglass"],
+    "Lanyards": ["Lanyard"],
+    "Balloons": ["Balloon"],
+    "Wristbands": ["Wristband"],
+    "Badges": ["Metal Badge","Wooden Badges"]
+  }
+}

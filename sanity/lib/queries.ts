@@ -31,6 +31,15 @@ export const productBySlugQuery = groq`
 
 export const allCategoriesQuery = groq`*[_type == "category"] | order(sortOrder asc) { _id, name, slug, image, parent->{name} }`
 export const topLevelCategoriesQuery = groq`*[_type == "category" && !defined(parent)] | order(sortOrder asc) { _id, name, slug, image }`
+
+// The storefront's nine roots are curated in siteSettings, because the
+// dataset also carries an unused parallel taxonomy (Home & Kitchen,
+// Electronics, Fashion …) left over from an earlier import. Anything that
+// renders "the categories" to a visitor should use getStorefrontRoots()
+// in src/lib/storefrontRoots.ts rather than topLevelCategoriesQuery.
+export const storefrontRootsQuery = groq`
+  *[_type == "siteSettings"][0].headerCategories[]->{ _id, name, slug, image }
+`
 export const categoryTreeFlatQuery = groq`*[_type == "category"]{ _id, name, slug, "parentId": parent._ref }`
 export const allProductAttributesQuery = groq`*[_type == "productAttribute"] | order(name asc) { _id, name, slug, showInFilters, values }`
 

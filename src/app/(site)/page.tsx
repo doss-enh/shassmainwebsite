@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import {client} from '@sanity-lib/lib/client'
-import {activeBannersQuery, topLevelCategoriesQuery, allProductsQuery, homepageQuery, allFaqsQuery} from '@sanity-lib/lib/queries'
+import {activeBannersQuery, allProductsQuery, homepageQuery, allFaqsQuery} from '@sanity-lib/lib/queries'
+import {getStorefrontRoots} from '@/lib/storefrontRoots'
 import {urlFor} from '@sanity-lib/lib/image'
 import {ProductCard} from '@/components/site/ProductCard'
 import {HeroCarousel, type HeroSlide} from '@/components/site/HeroCarousel'
@@ -43,7 +44,7 @@ async function getHomeData() {
   try {
     const [banners, categories, products, home, faqs] = await Promise.all([
       client.fetch<Banner[]>(activeBannersQuery, {placement: 'homepage-hero'}),
-      client.fetch<Category[]>(topLevelCategoriesQuery),
+      getStorefrontRoots(),
       client.fetch<Product[]>(allProductsQuery),
       client.fetch<any>(homepageQuery),
       client.fetch<Faq[]>(allFaqsQuery),

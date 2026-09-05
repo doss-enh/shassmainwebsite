@@ -1,5 +1,6 @@
 import {client} from '@sanity-lib/lib/client'
-import {allProductsQuery, topLevelCategoriesQuery, categoryTreeFlatQuery} from '@sanity-lib/lib/queries'
+import {allProductsQuery, categoryTreeFlatQuery} from '@sanity-lib/lib/queries'
+import {getStorefrontRoots} from '@/lib/storefrontRoots'
 import {urlFor} from '@sanity-lib/lib/image'
 import {ProductCard} from '@/components/site/ProductCard'
 import {buildCategoryTree, type CategoryNode, type FlatCategory} from '@/lib/categoryTree'
@@ -22,7 +23,7 @@ async function getData() {
   try {
     const [products, topLevel, flat] = await Promise.all([
       client.fetch<Product[]>(allProductsQuery),
-      client.fetch<{_id: string; name: string; slug?: {current: string}}[]>(topLevelCategoriesQuery),
+      getStorefrontRoots(),
       client.fetch<FlatCategory[]>(categoryTreeFlatQuery),
     ])
     return {products, tree: buildCategoryTree(topLevel, flat)}

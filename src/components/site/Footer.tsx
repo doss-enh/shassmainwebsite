@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import {client} from '@sanity-lib/lib/client'
-import {siteSettingsQuery, topLevelCategoriesQuery, navigationMenuByLocationQuery} from '@sanity-lib/lib/queries'
+import {siteSettingsQuery, navigationMenuByLocationQuery} from '@sanity-lib/lib/queries'
+import {getStorefrontRoots} from '@/lib/storefrontRoots'
 import {NewsletterForm} from './NewsletterForm'
 import {SocialIcons} from './SocialIcons'
 
@@ -8,7 +9,7 @@ async function getData() {
   try {
     const [settings, categories, mainMenu] = await Promise.all([
       client.fetch(siteSettingsQuery),
-      client.fetch<{_id: string; name: string; slug?: {current: string}}[]>(topLevelCategoriesQuery),
+      getStorefrontRoots(),
       client.fetch<{items?: {label: string; href?: string}[]} | null>(navigationMenuByLocationQuery, {location: 'main'}),
     ])
     return {settings, categories, mainItems: mainMenu?.items || []}

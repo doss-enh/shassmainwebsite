@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import {client} from '@sanity-lib/lib/client'
-import {allPostsQuery, topLevelCategoriesQuery} from '@sanity-lib/lib/queries'
+import {allPostsQuery} from '@sanity-lib/lib/queries'
+import {getStorefrontRoots} from '@/lib/storefrontRoots'
 import {Breadcrumb} from '@/components/site/Breadcrumb'
 import {formatDateTime} from '@/lib/format'
 
@@ -13,7 +14,7 @@ async function getData() {
   try {
     const [posts, categories] = await Promise.all([
       client.fetch<Post[]>(allPostsQuery),
-      client.fetch<Category[]>(topLevelCategoriesQuery),
+      getStorefrontRoots(),
     ])
     return {posts, categories}
   } catch {

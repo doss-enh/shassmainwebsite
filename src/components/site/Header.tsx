@@ -1,8 +1,9 @@
 import Link from 'next/link'
 import {client} from '@sanity-lib/lib/client'
-import {navigationMenuByLocationQuery, siteSettingsQuery, topLevelCategoriesQuery, categoryTreeFlatQuery} from '@sanity-lib/lib/queries'
+import {navigationMenuByLocationQuery, siteSettingsQuery, categoryTreeFlatQuery} from '@sanity-lib/lib/queries'
 import {urlFor} from '@sanity-lib/lib/image'
 import {buildCategoryTree, type CategoryNode, type FlatCategory} from '@/lib/categoryTree'
+import {getStorefrontRoots} from '@/lib/storefrontRoots'
 import {CartBadge} from './CartBadge'
 import {MegaMenu} from './MegaMenu'
 import {SocialIcons} from './SocialIcons'
@@ -12,15 +13,12 @@ type SocialLink = {platform: string; url: string}
 
 async function getHeaderData() {
   try {
-    const [mainMenu, topLevel, flat, settings] = await Promise.all([
+    const [mainMenu, roots, flat, settings] = await Promise.all([
       client.fetch<{items?: NavItem[]} | null>(navigationMenuByLocationQuery, {location: 'main'}),
-      client.fetch<{_id: string; name: string; slug?: {current: string}}[]>(topLevelCategoriesQuery),
+      getStorefrontRoots(),
       client.fetch<FlatCategory[]>(categoryTreeFlatQuery),
       client.fetch(siteSettingsQuery),
     ])
-    // The flyout's top level is curated in settings; the dataset carries more
-    // top-level categories than the menu is meant to show.
-    const roots = settings?.headerCategories?.length ? settings.headerCategories : topLevel
 
     return {
       items: mainMenu?.items || [],
