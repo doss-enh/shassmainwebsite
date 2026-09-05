@@ -15,7 +15,10 @@ import {groq} from 'next-sanity'
 export const allProductsQuery = groq`
   *[_type == "product" && status != "draft"] | order(_createdAt desc) {
     _id, title, slug, sku, featured, newProduct, _createdAt,
-    featuredImage, category->{name, slug}
+    featuredImage, category->{name, slug},
+    "catSlugs": array::unique(
+      [category->slug.current] + additionalCategories[]->slug.current
+    )
   }
 `
 

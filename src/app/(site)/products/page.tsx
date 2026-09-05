@@ -19,6 +19,7 @@ type Product = {
   slug?: {current: string}
   featuredImage?: any
   category?: {name: string; slug?: {current: string}}
+  catSlugs?: (string | null)[]
 }
 
 async function getData() {
@@ -73,7 +74,12 @@ export default async function ProductsPage({
   const activeNode = category ? findNode(tree, category) : undefined
   const activeSlugs = activeNode ? new Set(flattenSlugs(activeNode)) : null
 
-  let filtered = activeSlugs ? products.filter((p) => p.category?.slug?.current && activeSlugs.has(p.category.slug.current)) : products
+  // Live lists a product under every category it is assigned to, not just
+  // its primary one — a USB drive filed under Metal USB and Eco-Friendly USB
+  // shows on both listings.
+  let filtered = activeSlugs
+    ? products.filter((p) => (p.catSlugs || [p.category?.slug?.current]).some((s) => s && activeSlugs.has(s)))
+    : products
   if (q) {
     const needle = q.toLowerCase()
     filtered = filtered.filter((p) => p.title.toLowerCase().includes(needle))
