@@ -70,8 +70,10 @@ export default async function HomePage() {
 
   return (
     <div>
+      {/* Renders straight onto the layout's gradient, continuing the header band. */}
       <HeroCarousel slides={slides} gridImages={gridImages} />
 
+      <div className="bg-white">
       {categories.length > 0 && (
         <section className="site-container py-16">
           <h2 className="mb-6 text-sm font-semibold uppercase tracking-wide text-neutral-500">Choose category</h2>
@@ -122,6 +124,7 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+      </div>
     </div>
   )
 }

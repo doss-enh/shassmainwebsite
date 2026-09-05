@@ -28,7 +28,7 @@ export default async function BlogPostPage({params}: {params: Promise<{slug: str
   if (!post) notFound()
 
   return (
-    <div>
+    <div className="bg-white">
       <Breadcrumb trail={[{label: 'Blogs', href: '/blog'}, {label: post.title}]} />
       <article className="mx-auto max-w-3xl px-4 py-14">
       <h1 className="text-3xl font-bold text-neutral-900">{post.title}</h1>

@@ -25,7 +25,7 @@ export default async function BlogPage() {
   const {posts, categories} = await getData()
 
   return (
-    <div>
+    <div className="bg-white">
       <Breadcrumb trail={[{label: 'Blogs'}]} />
 
       <div className="site-container py-12">

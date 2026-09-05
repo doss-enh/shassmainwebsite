@@ -16,9 +16,18 @@ const paths: Record<string, string> = {
     'M6.94 8.5H3.56V21h3.38V8.5zM5.25 3a1.96 1.96 0 1 0 0 3.92A1.96 1.96 0 0 0 5.25 3zM21 21v-6.8c0-3.6-1.9-5.3-4.5-5.3-2.1 0-3 1.2-3.5 2v-1.7h-3.4V21H13v-6.4c0-1.7 1-2.3 1.8-2.3 1 0 1.7.7 1.7 2.4V21H21z',
 }
 
-export function SocialIcons({links, className = ''}: {links: SocialLink[]; className?: string}) {
+export function SocialIcons({
+  links,
+  className = '',
+  variant = 'dark',
+}: {
+  links: SocialLink[]
+  className?: string
+  variant?: 'dark' | 'light'
+}) {
+  const tone = variant === 'light' ? 'text-white hover:text-white/75' : 'text-neutral-500 hover:text-primary'
   return (
-    <div className={`items-center gap-2.5 ${className}`}>
+    <div className={`items-center gap-3 ${className}`}>
       {links.map((s) => {
         const d = paths[s.platform]
         if (!d) return null
@@ -28,7 +37,7 @@ export function SocialIcons({links, className = ''}: {links: SocialLink[]; class
             href={s.url}
             target="_blank"
             rel="noreferrer"
-            className="flex h-6 w-6 items-center justify-center text-neutral-500 hover:text-primary"
+            className={`flex h-6 w-6 items-center justify-center ${tone}`}
           >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
               <path d={d} />

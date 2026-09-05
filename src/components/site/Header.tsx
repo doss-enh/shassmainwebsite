@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import {client} from '@sanity-lib/lib/client'
 import {navigationMenuByLocationQuery, siteSettingsQuery, topLevelCategoriesQuery, categoryTreeFlatQuery} from '@sanity-lib/lib/queries'
+import {urlFor} from '@sanity-lib/lib/image'
 import {buildCategoryTree, type CategoryNode, type FlatCategory} from '@/lib/categoryTree'
 import {CartBadge} from './CartBadge'
 import {MegaMenu} from './MegaMenu'
@@ -22,6 +23,7 @@ async function getHeaderData() {
       categoryTree: buildCategoryTree(topLevel, flat),
       siteName: settings?.siteName || 'Shass Gift',
       contactPhone: settings?.phone,
+      logoUrl: urlFor(settings?.logo)?.height(80).url(),
       socialLinks: (settings?.socialLinks || []) as SocialLink[],
     }
   } catch {
@@ -30,6 +32,7 @@ async function getHeaderData() {
       categoryTree: [] as CategoryNode[],
       siteName: 'Shass Gift',
       contactPhone: undefined as string | undefined,
+      logoUrl: undefined as string | undefined,
       socialLinks: [] as SocialLink[],
     }
   }
@@ -40,90 +43,102 @@ function resolveHref(item: NavItem) {
   return item.href || '#'
 }
 
-export async function Header() {
-  const {items, categoryTree, siteName, contactPhone, socialLinks} = await getHeaderData()
-
+/**
+ * Sits directly on the hero gradient — there's no white utility bar. Both
+ * rows are white-on-gradient, so the header and hero read as one band.
+ * The parent section supplies the gradient background.
+ */
+export function Header({items, categoryTree, siteName, contactPhone, logoUrl, socialLinks}: Awaited<ReturnType<typeof getHeaderData>>) {
   return (
-    <header className="sticky top-0 z-30">
-      {/* Utility bar */}
-      <div className="border-b border-neutral-100 bg-white">
-        <div className="site-container flex items-center justify-between gap-6 px-4 py-3">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-primary text-sm font-semibold text-white">
-              SG
-            </div>
-            <span className="text-base font-semibold leading-tight text-neutral-900">{siteName}</span>
+    <div className="relative z-30">
+      {/* Row 1 — logo, search, social, account, phone, cart */}
+      <div className="site-container flex items-center justify-between gap-6 py-4">
+        <Link href="/" className="flex items-center gap-2.5">
+          {logoUrl ? (
+            <img src={logoUrl} alt={siteName} className="h-10 w-auto" />
+          ) : (
+            <span className="text-2xl font-bold tracking-tight text-white">{siteName}</span>
+          )}
+        </Link>
+
+        <div className="ml-auto hidden w-full max-w-md md:block">
+          <form action="/products" className="relative">
+            <input
+              name="q"
+              aria-label="Search products"
+              className="w-full rounded-full bg-white px-5 py-2.5 pr-12 text-[13px] text-neutral-800 outline-none"
+            />
+            <button
+              type="submit"
+              aria-label="Search"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-primary"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </button>
+          </form>
+        </div>
+
+        <div className="flex items-center gap-5">
+          {socialLinks.length > 0 && <SocialIcons links={socialLinks} variant="light" className="hidden lg:flex" />}
+
+          <Link href="/enquiry" className="hidden flex-col items-center text-[11px] text-white hover:text-white/80 lg:flex">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            Login
           </Link>
 
-          <div className="hidden flex-1 max-w-md md:block">
-            <form action="/products" className="relative">
-              <input
-                name="q"
-                placeholder="Search products…"
-                className="w-full rounded-full border border-neutral-300 bg-neutral-50 px-4 py-2 text-[13px] outline-none focus:border-primary"
-              />
-              <button type="submit" className="absolute right-1 top-1 flex h-7 w-7 items-center justify-center rounded-full bg-primary text-white">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <circle cx="11" cy="11" r="8" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-              </button>
-            </form>
-          </div>
+          {contactPhone && (
+            <a href={`tel:${contactPhone}`} className="hidden text-[13px] text-white sm:block">
+              <span className="block text-[11px] text-white/70">Call Us</span>
+              <span className="font-bold">{contactPhone}</span>
+            </a>
+          )}
 
-          <div className="flex items-center gap-5">
-            {socialLinks.length > 0 && <SocialIcons links={socialLinks} className="hidden lg:flex" />}
-            <Link href="/enquiry" className="hidden flex-col items-center text-[11px] text-neutral-500 hover:text-primary lg:flex">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-              Login
-            </Link>
-            {contactPhone && (
-              <a href={`tel:${contactPhone}`} className="hidden text-[13px] text-neutral-600 sm:block">
-                <span className="text-[11px] text-neutral-400">Call Us</span>
-                <div className="font-semibold text-neutral-900">{contactPhone}</div>
-              </a>
-            )}
-            <CartBadge />
-          </div>
+          <CartBadge variant="light" />
         </div>
       </div>
 
-      {/* Category / nav bar — same gradient as the hero, so the two read as one band */}
-      <div className="site-hero-gradient">
-        <div className="site-container flex items-center gap-6 px-4 py-3">
-          <MegaMenu tree={categoryTree} />
+      {/* Row 2 — categories, nav, brochure, recently viewed */}
+      <div className="site-container flex items-center gap-8 pb-4">
+        <MegaMenu tree={categoryTree} />
 
-          <nav className="hidden items-center gap-6 text-[13px] font-semibold text-white md:flex">
-            <Link href="/products" className="hover:text-white/80">
-              Products
+        <nav className="hidden items-center gap-7 text-[14px] font-semibold text-white md:flex">
+          <Link href="/" className="hover:text-white/75">
+            Home
+          </Link>
+          {items.map((item) => (
+            <Link key={item.label} href={resolveHref(item)} className="hover:text-white/75">
+              {item.label}
             </Link>
-            {items.map((item) => (
-              <Link key={item.label} href={resolveHref(item)} className="hover:text-white/80">
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          ))}
+        </nav>
 
-          <div className="ml-auto hidden items-center gap-6 lg:flex">
-            <Link
-              href="/contact"
-              className="rounded-sm bg-primary px-4 py-2 text-[13px] font-semibold text-white hover:bg-primary-dark"
-            >
-              Download Brochure
-            </Link>
-            <Link href="/products" className="flex items-center gap-2 text-[13px] font-semibold text-white hover:text-white/80">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
-                <path d="M3 3v5h5" />
-              </svg>
-              Recently Viewed
-            </Link>
-          </div>
+        <div className="ml-auto hidden items-center gap-7 lg:flex">
+          <Link
+            href="/contact"
+            className="rounded-md bg-primary px-5 py-2.5 text-[13px] font-semibold text-white hover:bg-primary-dark"
+          >
+            Download Brochure
+          </Link>
+          <Link href="/products" className="flex items-center gap-2 text-[14px] font-semibold text-white hover:text-white/75">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+              <path d="M3 3v5h5" />
+            </svg>
+            Recently Viewed
+          </Link>
         </div>
       </div>
-    </header>
+    </div>
   )
+}
+
+export async function SiteHeader() {
+  const data = await getHeaderData()
+  return <Header {...data} />
 }

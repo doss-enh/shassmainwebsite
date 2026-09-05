@@ -25,7 +25,7 @@ export default async function ContactPage() {
   const mapQuery = addressLine ? encodeURIComponent(addressLine) : undefined
 
   return (
-    <div>
+    <div className="bg-white">
       <Breadcrumb trail={[{label: page?.title || 'Contact'}]} />
       <div className="site-container py-16">
       <h1 className="mb-8 text-center text-3xl font-bold text-neutral-900">{page?.title || 'Contact'}</h1>

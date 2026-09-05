@@ -18,7 +18,7 @@ export default async function FaqsPage() {
   const faqs = await getFaqs()
 
   return (
-    <div>
+    <div className="bg-white">
       <Breadcrumb trail={[{label: 'FAQs'}]} />
       <div className="mx-auto max-w-4xl px-4 py-16 text-center">
       <h1 className="mb-2 text-3xl font-semibold text-neutral-900">Frequently Asked Questions</h1>

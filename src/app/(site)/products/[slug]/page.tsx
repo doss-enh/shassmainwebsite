@@ -42,7 +42,7 @@ export default async function ProductDetailPage({params}: {params: Promise<{slug
   const hasVariants = (product.variants?.length || 0) > 0 && (product.variantAxes?.length || 0) > 0
 
   return (
-    <div>
+    <div className="bg-white">
       <Breadcrumb
         trail={[
           {label: 'Products', href: '/products'},

@@ -98,7 +98,7 @@ export default async function ProductsPage({
   const sidebarRoot = activeNode ? tree.find((t) => flattenSlugs(t).includes(activeNode.slug || '')) : undefined
 
   return (
-    <div>
+    <div className="bg-white">
       <section className="site-hero-gradient relative overflow-hidden">
         <div className="site-container flex items-center justify-between gap-6 px-4 py-14">
           <h1 className="text-4xl font-bold text-white sm:text-5xl">{activeNode?.name || 'All Products'}</h1>

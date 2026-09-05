@@ -22,7 +22,7 @@ export default async function DynamicPage({params}: {params: Promise<{slug: stri
   if (!page) notFound()
 
   return (
-    <div>
+    <div className="bg-white">
       <Breadcrumb trail={[{label: page.title}]} />
       <article className="mx-auto max-w-4xl px-4 py-14">
         <h1 className="mb-8 text-center text-3xl font-bold text-neutral-900">{page.title}</h1>
