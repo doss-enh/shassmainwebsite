@@ -20,6 +20,7 @@ type Product = {
   featuredImage?: any
   category?: {name: string; slug?: {current: string}}
   catSlugs?: (string | null)[]
+  colors?: string[]
 }
 
 async function getData() {

@@ -27,6 +27,7 @@ type Product = {
   colors?: string[]
   variantAxes?: {name: string; values?: string[]}[]
   variants?: {sku?: string; isDefault?: boolean; stockStatus?: string; options?: {name: string; value: string}[]}[]
+  faqs?: {question: string; answer: string}[]
   category?: Cat
   additionalCategories?: Cat[]
   related?: {_id: string; title: string; sku?: string; slug?: {current: string}; featuredImage?: any}[]
@@ -164,6 +165,34 @@ export default async function ProductDetailPage({params}: {params: Promise<{slug
             </div>
             <div className="prose prose-neutral mt-5 max-w-none text-sm text-neutral-600">
               <PortableText value={product.description} />
+            </div>
+          </section>
+        )}
+
+        {product.faqs && product.faqs.length > 0 && (
+          <section className="mt-14">
+            <h2 className="font-heading text-2xl font-bold text-neutral-900">Frequently asked questions</h2>
+            <div className="mt-5 divide-y divide-neutral-200 border-y border-neutral-200">
+              {product.faqs.map((faq, i) => (
+                <details key={i} className="group py-4">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-semibold text-neutral-900 [&::-webkit-details-marker]:hidden">
+                    {faq.question}
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      aria-hidden="true"
+                      className="shrink-0 text-primary transition-transform group-open:rotate-180"
+                    >
+                      <path d="m6 9 6 6 6-6" />
+                    </svg>
+                  </summary>
+                  <p className="mt-3 text-sm leading-relaxed text-neutral-600">{faq.answer}</p>
+                </details>
+              ))}
             </div>
           </section>
         )}
