@@ -39,16 +39,25 @@ export function FeaturedBrands({heading, tiles}: {heading?: string; tiles?: Bran
   if (!tiles?.length) return null
   return (
     <section className="site-container py-10">
-      {heading && <h2 className="mb-5 text-base font-bold text-neutral-900">{heading}</h2>}
-      <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
+      {heading && <h2 className="mb-6 text-xl font-bold text-neutral-900">{heading}</h2>}
+      <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
         {tiles.map((tile, i) => {
-          const img = urlFor(tile.image)?.width(500).height(360).url()
+          // Source banners are 1626×1046; keep that ratio so nothing crops oddly.
+          const img = urlFor(tile.image)?.width(650).height(418).url()
           const inner = (
             <>
-              <div className="aspect-[4/3] overflow-hidden bg-neutral-100">
-                {img && <img src={img} alt={tile.image?.alt || tile.label || ''} className="h-full w-full object-cover" />}
+              <div className="aspect-[1626/1046] overflow-hidden rounded-xl bg-neutral-200">
+                {img && (
+                  <img
+                    src={img}
+                    alt={tile.image?.alt || tile.label || ''}
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                  />
+                )}
               </div>
-              {tile.label && <div className="mt-2 text-[11px] font-semibold uppercase tracking-wide text-neutral-600">{tile.label}</div>}
+              {tile.label && (
+                <div className="mt-3 text-base font-bold uppercase text-[#6c757d] group-hover:text-primary">{tile.label}</div>
+              )}
             </>
           )
           return tile.link ? (
