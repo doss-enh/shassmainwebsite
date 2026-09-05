@@ -174,21 +174,37 @@ for (const f of catFixes) {
 if (doCats) console.log(`[csv] corrected ${n} category assignments`)
 
 // ---------- write images ----------
+// Uploads run for a long time against two remote hosts, so a single DNS or
+// socket blip should not end the run — retry a few times with a backoff and
+// only then give up on that image.
+async function withRetry(label, fn, tries = 4) {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await fn()
+    } catch (err) {
+      if (attempt >= tries) {
+        console.warn(`  giving up on ${label}: ${err?.message || err}`)
+        return null
+      }
+      await new Promise((r) => setTimeout(r, attempt * 2000))
+    }
+  }
+}
+
 let ok = 0
 let fail = 0
 for (const f of imgFixes) {
   const assets = []
   for (const url of f.urls.slice(0, 8)) {
-    try {
+    const asset = await withRetry(url.split('/').pop(), async () => {
       const res = await fetch(url)
-      if (!res.ok) { fail++; continue }
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const buf = Buffer.from(await res.arrayBuffer())
-      if (buf.length < 512) { fail++; continue }
-      const asset = await client.assets.upload('image', buf, {filename: url.split('/').pop()})
-      assets.push(asset._id)
-    } catch {
-      fail++
-    }
+      if (buf.length < 512) throw new Error('image too small')
+      return client.assets.upload('image', buf, {filename: url.split('/').pop()})
+    })
+    if (asset) assets.push(asset._id)
+    else fail++
   }
   if (!assets.length) continue
   const ref = (id, key) => ({_type: 'imageWithAlt', _key: key, asset: {_type: 'reference', _ref: id}})
@@ -197,7 +213,8 @@ for (const f of imgFixes) {
   const rest = f.hasImg ? assets : assets.slice(1)
   if (rest.length) patch.gallery = rest.map((id, i) => ref(id, `csv-${i}-${id.slice(-6)}`))
   if (Object.keys(patch).length) {
-    await client.patch(f.id).set(patch).commit()
+    const done = await withRetry(`patch ${f.sku || f.slug}`, () => client.patch(f.id).set(patch).commit())
+    if (!done) continue
     ok++
     if (ok % 25 === 0) console.log(`  media ${ok}/${imgFixes.length}`)
   }
