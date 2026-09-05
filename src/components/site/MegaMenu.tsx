@@ -47,7 +47,7 @@ export function MegaMenu({tree}: {tree: CategoryNode[]}) {
               <div className="grid grid-cols-4 gap-x-6 gap-y-5">
                 {active.children.map((sub) => (
                   <div key={sub._id}>
-                    <Link href={hrefFor(sub.slug)} className="text-[13px] font-bold text-site-secondary hover:text-primary">
+                    <Link href={hrefFor(sub.slug)} className="text-[13px] font-bold text-teal-600 hover:text-primary">
                       {sub.name}
                     </Link>
                     {sub.children.length > 0 && (

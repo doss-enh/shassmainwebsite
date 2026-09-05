@@ -73,6 +73,13 @@ export async function Header() {
 
           <div className="flex items-center gap-5">
             {socialLinks.length > 0 && <SocialIcons links={socialLinks} className="hidden lg:flex" />}
+            <Link href="/enquiry" className="hidden flex-col items-center text-[11px] text-neutral-500 hover:text-primary lg:flex">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+              Login
+            </Link>
             {contactPhone && (
               <a href={`tel:${contactPhone}`} className="hidden text-[13px] text-neutral-600 sm:block">
                 <span className="text-[11px] text-neutral-400">Call Us</span>
@@ -99,6 +106,22 @@ export async function Header() {
               </Link>
             ))}
           </nav>
+
+          <div className="ml-auto hidden items-center gap-6 lg:flex">
+            <Link
+              href="/contact"
+              className="rounded-sm bg-primary px-4 py-2 text-[13px] font-semibold text-white hover:bg-primary-dark"
+            >
+              Download Brochure
+            </Link>
+            <Link href="/products" className="flex items-center gap-2 text-[13px] font-semibold text-white hover:text-white/80">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+                <path d="M3 3v5h5" />
+              </svg>
+              Recently Viewed
+            </Link>
+          </div>
         </div>
       </div>
     </header>

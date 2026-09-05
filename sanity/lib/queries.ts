@@ -9,9 +9,12 @@ import {groq} from 'next-sanity'
 // never sees draft documents — no explicit draft filtering needed here.
 
 // ---------- Shop ----------
+// Listing projection stays to what a card draws — the data cache has a 2MB
+// ceiling and a fatter projection over 1,687 products blows past it, so the
+// query is never cached and refetches on every render.
 export const allProductsQuery = groq`
   *[_type == "product"] | order(_createdAt desc) {
-    _id, title, slug, sku, featured, bestSeller, newProduct, stockStatus,
+    _id, title, slug, sku, featured, newProduct, colors,
     featuredImage, category->{name, slug}
   }
 `

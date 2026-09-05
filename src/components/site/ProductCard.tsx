@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import {urlFor} from '@sanity-lib/lib/image'
+import {ColorSwatches} from './ColorSwatches'
 
 type Product = {
   _id: string
@@ -8,6 +9,7 @@ type Product = {
   slug?: {current: string}
   featuredImage?: any
   newProduct?: boolean
+  colors?: string[]
   category?: {name: string}
 }
 
@@ -28,6 +30,11 @@ export function ProductCard({product}: {product: Product}) {
       <div className="p-3">
         <div className="truncate text-sm font-medium text-neutral-900">{product.title}</div>
         {product.sku && <div className="mt-0.5 font-mono text-[11px] text-neutral-400">{product.sku}</div>}
+        {product.colors && product.colors.length > 0 && (
+          <div className="mt-2">
+            <ColorSwatches colors={product.colors} />
+          </div>
+        )}
       </div>
     </Link>
   )
