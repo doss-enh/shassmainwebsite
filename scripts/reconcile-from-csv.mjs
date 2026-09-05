@@ -43,6 +43,9 @@ const client = createClient({
 })
 
 const STORAGE = 'https://www.shassgift.com/storage/'
+// A gallery beyond this adds weight without adding much for the viewer;
+// the live product pages show three.
+const MAX_IMAGES = 8
 const norm = (s) => (s || '').toLowerCase().replace(/[\s\-–—]+/g, ' ').replace(/[^a-z0-9& ]/g, '').trim()
 
 const rows = parse(readFileSync(csvPath, 'utf8'), {columns: true, skip_empty_lines: true, relax_quotes: true})
@@ -106,8 +109,10 @@ if (doImgs) {
     if (!prod) continue
     const paths = (row['Images'] || '').split(',').map((s) => s.trim()).filter(Boolean)
     if (!paths.length) continue
-    // Only touch products that are actually short of media.
-    if (prod.hasImg && prod.gal >= paths.length - 1) continue
+    // Only touch products that are actually short of media. Compare against
+    // the cap, not the raw CSV count, or the 34 products listing more than
+    // MAX_IMAGES would report as short forever despite being full.
+    if (prod.hasImg && prod.gal >= Math.min(paths.length, MAX_IMAGES) - 1) continue
     imgFixes.push({id: prod._id, slug, sku: prod.sku, hasImg: prod.hasImg, have: prod.gal, urls: paths.map((p) => STORAGE + p)})
   }
 }
@@ -195,7 +200,7 @@ let ok = 0
 let fail = 0
 for (const f of imgFixes) {
   const assets = []
-  for (const url of f.urls.slice(0, 8)) {
+  for (const url of f.urls.slice(0, MAX_IMAGES)) {
     const asset = await withRetry(url.split('/').pop(), async () => {
       const res = await fetch(url)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
