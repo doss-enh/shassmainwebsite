@@ -42,6 +42,15 @@ export default defineType({
     defineField({name: 'stockStatus', title: 'Stock status', type: 'string', options: {list: ['instock', 'outofstock', 'backorder']}, group: 'variations'}),
     defineField({name: 'priceOnRequest', title: 'Price on request', type: 'boolean', initialValue: true, group: 'variations'}),
 
+    defineField({
+      name: 'status',
+      title: 'Status',
+      type: 'string',
+      options: {list: ['published', 'draft']},
+      initialValue: 'published',
+      group: 'content',
+      description: 'Draft products are hidden from the storefront.',
+    }),
     defineField({name: 'featured', title: 'Featured', type: 'boolean', group: 'related'}),
     defineField({name: 'bestSeller', title: 'Best seller', type: 'boolean', group: 'related'}),
     defineField({name: 'newProduct', title: 'New product', type: 'boolean', group: 'related'}),

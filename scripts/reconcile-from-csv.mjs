@@ -32,6 +32,7 @@ const APPLY = process.argv.includes('--apply')
 const only = (process.argv.find((a) => a.startsWith('--only=')) || '').split('=')[1] || 'all'
 const doCats = only === 'all' || only === 'categories'
 const doImgs = only === 'all' || only === 'images'
+const doFlags = only === 'all' || only === 'flags'
 
 const client = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
@@ -63,7 +64,7 @@ for (const c of cats) if (!catByStem.has(stem(c.name))) catByStem.set(stem(c.nam
 const lookupCat = (n) => catByName.get(norm(n)) || catByStem.get(stem(n))
 
 const products = await client.fetch(
-  `*[_type=="product" && !(_id in path("drafts.**"))]{_id, "slug":slug.current, sku, "cat":category._ref, "add":additionalCategories[]._ref, "hasImg":defined(featuredImage), "gal":count(gallery)}`,
+  `*[_type=="product" && !(_id in path("drafts.**"))]{_id, "slug":slug.current, sku, "cat":category._ref, "add":additionalCategories[]._ref, "hasImg":defined(featuredImage), "gal":count(gallery), featured, newProduct, status}`,
 )
 const bySlug = new Map(products.map((p) => [p.slug, p]))
 
@@ -111,7 +112,33 @@ if (doImgs) {
   }
 }
 
+// ---------- flags ----------
+// The CSV's Labels column marks 606 products "New" and its Status column
+// holds 19 drafts; neither came across in the original import.
+const flagFixes = []
+if (doFlags) {
+  for (const row of parents) {
+    const prod = bySlug.get((row['Slug'] || '').trim())
+    if (!prod) continue
+    const next = {
+      newProduct: (row['Labels'] || '').trim().toLowerCase() === 'new',
+      featured: (row['Is featured?'] || '').trim() === '1',
+      status: (row['Status'] || 'published').trim() === 'draft' ? 'draft' : 'published',
+    }
+    if (
+      Boolean(prod.newProduct) === next.newProduct &&
+      Boolean(prod.featured) === next.featured &&
+      (prod.status || 'published') === next.status
+    ) continue
+    flagFixes.push({id: prod._id, sku: prod.sku, ...next})
+  }
+}
+
 console.log(`[csv] ${parents.length} CSV products, ${products.length} in Sanity`)
+if (doFlags) {
+  const n = (k, v) => flagFixes.filter((f) => f[k] === v).length
+  console.log(`[csv] flag changes: ${flagFixes.length}  (new=${n('newProduct', true)}, featured=${n('featured', true)}, draft=${n('status', 'draft')})`)
+}
 if (doCats) {
   console.log(`[csv] category assignments to correct: ${catFixes.length}`)
   catFixes.slice(0, 8).forEach((f) => console.log(`    ${(f.sku || '').padEnd(11)} /${f.slug}`))
@@ -123,6 +150,14 @@ if (!APPLY) {
   console.log('\n[csv] Dry run — nothing written.')
   process.exit(0)
 }
+
+// ---------- write flags ----------
+let flagged = 0
+for (const f of flagFixes) {
+  await client.patch(f.id).set({newProduct: f.newProduct, featured: f.featured, status: f.status}).commit()
+  if (++flagged % 200 === 0) console.log(`  flags ${flagged}/${flagFixes.length}`)
+}
+if (doFlags) console.log(`[csv] updated flags on ${flagged} products`)
 
 // ---------- write categories ----------
 let n = 0

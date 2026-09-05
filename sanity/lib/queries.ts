@@ -13,7 +13,7 @@ import {groq} from 'next-sanity'
 // ceiling and a fatter projection over 1,687 products blows past it, so the
 // query is never cached and refetches on every render.
 export const allProductsQuery = groq`
-  *[_type == "product"] | order(_createdAt desc) {
+  *[_type == "product" && status != "draft"] | order(_createdAt desc) {
     _id, title, slug, sku, featured, newProduct, _createdAt,
     featuredImage, category->{name, slug}
   }
@@ -26,12 +26,12 @@ export const productsByIdsQuery = groq`
 // Ancestry is projected three deep because the tree is three levels: the
 // breadcrumb and the "Categories:" meta line both walk it.
 export const productBySlugQuery = groq`
-  *[_type == "product" && slug.current == $slug][0]{
+  *[_type == "product" && slug.current == $slug && status != "draft"][0]{
     ...,
     category->{name, slug, parent->{name, slug, parent->{name, slug}}},
     additionalCategories[]->{name, slug},
     "related": *[
-      _type == "product" && _id != ^._id && defined(featuredImage) &&
+      _type == "product" && _id != ^._id && defined(featuredImage) && status != "draft" &&
       (category._ref == ^.category._ref || _id in ^.relatedProducts[]._ref)
     ] | order(featured desc)[0...6]{ _id, title, sku, slug, featuredImage }
   }
@@ -53,7 +53,7 @@ export const categoryTreeFlatQuery = groq`*[_type == "category"]{ _id, name, slu
 export const rootBannersQuery = groq`*[_type == "category" && !defined(parent) && defined(banner)]{ _id, name, banner }`
 export const allProductAttributesQuery = groq`*[_type == "productAttribute"] | order(name asc) { _id, name, slug, showInFilters, values }`
 
-export const productCountQuery = groq`count(*[_type == "product"])`
+export const productCountQuery = groq`count(*[_type == "product" && status != "draft"])`
 export const categoryCountQuery = groq`count(*[_type == "category"])`
 
 // ---------- Content ----------
