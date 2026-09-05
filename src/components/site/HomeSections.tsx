@@ -149,44 +149,6 @@ export function CtaButtons({buttons}: {buttons?: CtaButton[]}) {
   )
 }
 
-type VideoTile = {title?: string; url?: string; thumbnail?: any}
-
-export function VideoStrip({videos}: {videos?: VideoTile[]}) {
-  if (!videos?.length) return null
-  return (
-    <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4">
-      {videos.map((v, i) => {
-        const thumb = urlFor(v.thumbnail)?.width(400).height(240).url()
-        return (
-          <a
-            key={i}
-            href={v.url || '#'}
-            target="_blank"
-            rel="noreferrer"
-            className="group relative block overflow-hidden rounded-sm border border-neutral-200 bg-neutral-900"
-          >
-            <div className="aspect-video">
-              {thumb && <img src={thumb} alt={v.title || ''} className="h-full w-full object-cover opacity-80 transition-opacity group-hover:opacity-100" />}
-            </div>
-            <span className="absolute inset-0 flex items-center justify-center">
-              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-red-600 text-white shadow-lg">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              </span>
-            </span>
-            {v.title && (
-              <span className="absolute inset-x-0 top-0 truncate bg-black/60 px-2 py-1 text-[11px] font-medium text-white">
-                {v.title}
-              </span>
-            )}
-          </a>
-        )
-      })}
-    </div>
-  )
-}
-
 export function ClientLogos({logos}: {logos?: any[]}) {
   if (!logos?.length) return null
   return (

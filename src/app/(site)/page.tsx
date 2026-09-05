@@ -11,9 +11,9 @@ import {
   IconCards,
   TagPills,
   CtaButtons,
-  VideoStrip,
   ClientLogos,
 } from '@/components/site/HomeSections'
+import {VideoStrip} from '@/components/site/VideoStrip'
 
 export const revalidate = 60
 
