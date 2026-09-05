@@ -37,6 +37,14 @@ export default defineType({
     richSection('introOne', 'Intro — above category row', 'intro'),
     richSection('introTwo', 'Intro — below category row', 'intro'),
     defineField({name: 'categoryHeading', title: 'Category row label', type: 'string', group: 'intro', initialValue: 'Choose Category'}),
+    defineField({
+      name: 'categoryRow',
+      title: 'Categories to show in the row',
+      type: 'array',
+      group: 'intro',
+      of: [{type: 'reference', to: [{type: 'category'}]}],
+      description: 'Leave empty to fall back to the top-level categories by sort order.',
+    }),
 
     // Featured brands strip.
     defineField({name: 'brandsHeading', title: 'Heading', type: 'string', group: 'brands', initialValue: 'Featured Brands'}),

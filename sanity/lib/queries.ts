@@ -48,7 +48,10 @@ export const allBannersQuery = groq`*[_type == "banner"] | order(sortOrder asc) 
 export const allNavigationMenusQuery = groq`*[_type == "navigationMenu"]{ _id, title, location, items }`
 export const navigationMenuByLocationQuery = groq`*[_type == "navigationMenu" && location == $location][0]{ items[]{..., category->{name, slug}, children[]{..., category->{name, slug}}} }`
 
-export const homepageQuery = groq`*[_type == "homepage"][0]`
+export const homepageQuery = groq`*[_type == "homepage"][0]{
+  ...,
+  categoryRow[]->{_id, name, slug, image}
+}`
 
 // ---------- Settings ----------
 export const siteSettingsQuery = groq`*[_type == "siteSettings"][0]`

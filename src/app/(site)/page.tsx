@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import {client} from '@sanity-lib/lib/client'
-import {activeBannersQuery, allCategoriesQuery, allProductsQuery, homepageQuery, allFaqsQuery} from '@sanity-lib/lib/queries'
+import {activeBannersQuery, topLevelCategoriesQuery, allProductsQuery, homepageQuery, allFaqsQuery} from '@sanity-lib/lib/queries'
 import {urlFor} from '@sanity-lib/lib/image'
 import {ProductCard} from '@/components/site/ProductCard'
 import {HeroCarousel, type HeroSlide} from '@/components/site/HeroCarousel'
@@ -36,7 +36,7 @@ async function getHomeData() {
   try {
     const [banners, categories, products, home, faqs] = await Promise.all([
       client.fetch<Banner[]>(activeBannersQuery, {placement: 'homepage-hero'}),
-      client.fetch<Category[]>(allCategoriesQuery),
+      client.fetch<Category[]>(topLevelCategoriesQuery),
       client.fetch<Product[]>(allProductsQuery),
       client.fetch<any>(homepageQuery),
       client.fetch<Faq[]>(allFaqsQuery),
@@ -45,7 +45,8 @@ async function getHomeData() {
       banners,
       home,
       faqs,
-      categories: categories.filter((c) => !!c.image).slice(0, 9),
+      // The row is curated in Studio; fall back to top-level categories.
+      categories: (home?.categoryRow?.length ? home.categoryRow : categories).slice(0, 9) as Category[],
       featured: products.filter((p) => p.featured).slice(0, 12),
       gridImages: products
         .map((p) => urlFor(p.featuredImage)?.width(240).height(240).url())
@@ -177,8 +178,8 @@ export default async function HomePage() {
                   View all →
                 </Link>
               </div>
-              <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-6">
-                {featured.slice(0, 6).map((p) => (
+              <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5">
+                {featured.slice(0, 10).map((p) => (
                   <ProductCard key={p._id} product={p} />
                 ))}
               </div>
