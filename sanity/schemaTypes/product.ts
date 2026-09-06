@@ -28,7 +28,17 @@ export default defineType({
     }),
 
     defineField({name: 'featuredImage', title: 'Featured image', type: 'imageWithAlt', group: 'media'}),
-    defineField({name: 'gallery', title: 'Gallery', type: 'array', of: [{type: 'imageWithAlt'}], group: 'media'}),
+    defineField({
+      name: 'gallery',
+      title: 'Gallery',
+      type: 'array',
+      of: [{type: 'imageWithAlt'}],
+      group: 'media',
+      // Grid layout gives drag-to-reorder tiles instead of a vertical list,
+      // and the array's own upload accepts several files at once.
+      options: {layout: 'grid'},
+      description: 'Drag to reorder. Select several files at once when uploading.',
+    }),
     defineField({name: 'needsImage', title: 'Needs a real image', type: 'boolean', group: 'media', description: 'Flagged during import — still has only a placeholder/no image'}),
 
     defineField({name: 'category', title: 'Primary category', type: 'reference', to: [{type: 'category'}], group: 'categories'}),

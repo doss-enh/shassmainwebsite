@@ -54,7 +54,11 @@ export const productFaq = defineType({
   title: 'Product FAQ',
   type: 'object',
   fields: [
-    defineField({name: 'question', title: 'Question', type: 'string'}),
-    defineField({name: 'answer', title: 'Answer', type: 'text'}),
+    defineField({name: 'question', title: 'Question', type: 'string', validation: (r) => r.required()}),
+    defineField({name: 'answer', title: 'Answer', type: 'text', rows: 3}),
   ],
+  // Without this every row in the list reads "Product FAQ".
+  preview: {
+    select: {title: 'question', subtitle: 'answer'},
+  },
 })
