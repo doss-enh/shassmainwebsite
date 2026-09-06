@@ -52,7 +52,10 @@ export default function EnquiryPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-12">
+    // Interior pages lay white over the layout's gradient; without it this
+    // page's dark text sat straight on the blue and was barely readable.
+    <div className="bg-white">
+      <div className="mx-auto max-w-4xl px-4 py-12">
       <h1 className="mb-2 text-3xl font-semibold text-neutral-900">Your enquiry</h1>
       <p className="mb-8 text-neutral-600">Review the products below and tell us how to reach you — we'll send a quote.</p>
 
@@ -126,6 +129,7 @@ export default function EnquiryPage() {
           </form>
         </div>
       )}
+      </div>
     </div>
   )
 }
