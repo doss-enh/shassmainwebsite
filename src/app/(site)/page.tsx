@@ -83,7 +83,7 @@ export default async function HomePage() {
     banners.length > 0
       ? banners.map((b) => ({
           id: b._id,
-          image: urlFor(b.image?.desktop)?.width(2000).quality(85).auto('format').url(),
+          image: urlFor(b.image?.desktop)?.width(2560).quality(85).auto('format').url(),
           alt: b.image?.desktop?.alt || b.title,
           href: b.cta?.href?.replace('/collections/', '/products') || '/products',
           heading: b.heading || b.title,

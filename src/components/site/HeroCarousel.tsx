@@ -35,13 +35,15 @@ export function HeroCarousel({slides}: {slides: HeroSlide[]}) {
   const slide = slides[active]
 
   return (
-    <section className="site-container relative px-0">
+    <section className="relative w-full">
       <div className="relative overflow-hidden">
         {slide.image ? (
           <Link href={slide.href || '/products'} aria-label={slide.alt || 'Featured'}>
-            {/* 1265×563 is what the live banner measures at desktop; the
-                artwork is wider than that, so it crops rather than letterboxes. */}
-            <div className="relative aspect-[1265/563] w-full">
+            {/* Full-bleed, holding the 563px desktop height rather than a
+                ratio — a ratio would grow the banner taller as the viewport
+                widens. Shorter steps below keep it from swallowing a phone
+                screen. object-cover crops the sides on wide monitors. */}
+            <div className="relative h-[220px] w-full sm:h-[320px] md:h-[420px] lg:h-[563px]">
               {slides.map((s, i) =>
                 s.image ? (
                   <img
@@ -84,20 +86,24 @@ export function HeroCarousel({slides}: {slides: HeroSlide[]}) {
               ))}
             </div>
 
-            <button
-              onClick={() => go(active - 1)}
-              aria-label="Previous slide"
-              className="absolute left-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/25 text-white hover:bg-black/40 md:flex"
-            >
-              ‹
-            </button>
-            <button
-              onClick={() => go(active + 1)}
-              aria-label="Next slide"
-              className="absolute right-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/25 text-white hover:bg-black/40 md:flex"
-            >
-              ›
-            </button>
+            <div className="pointer-events-none absolute inset-0 hidden md:block">
+              <div className="site-container relative h-full">
+                <button
+                  onClick={() => go(active - 1)}
+                  aria-label="Previous slide"
+                  className="pointer-events-auto absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/25 text-white hover:bg-black/40"
+                >
+                  ‹
+                </button>
+                <button
+                  onClick={() => go(active + 1)}
+                  aria-label="Next slide"
+                  className="pointer-events-auto absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/25 text-white hover:bg-black/40"
+                >
+                  ›
+                </button>
+              </div>
+            </div>
           </>
         )}
       </div>
