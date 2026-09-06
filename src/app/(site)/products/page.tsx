@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import {notFound} from 'next/navigation'
 import {client} from '@sanity-lib/lib/client'
 import {allProductsQuery, categoryTreeFlatQuery, filterAttributesQuery} from '@sanity-lib/lib/queries'
 import {getStorefrontRoots} from '@/lib/storefrontRoots'
@@ -85,6 +86,10 @@ export default async function ProductsPage({
   const selection = selectionFromParams(params, attributeNames)
 
   const activeNode = category ? findNode(tree, category) : undefined
+  // A category slug that resolves to nothing used to fall through to the full
+  // catalogue, so a typo or a dead link looked like the whole shop and gave
+  // search engines an unbounded set of duplicate listings.
+  if (category && !activeNode) notFound()
   const trail = activeNode?.slug ? pathTo(tree, activeNode.slug) || [] : []
   const activeSlugs = activeNode ? new Set(flattenSlugs(activeNode)) : null
 
@@ -108,8 +113,10 @@ export default async function ProductsPage({
   else if (sort === 'date_desc') filtered = [...filtered].sort((a, b) => byDate(b, a))
   else filtered = [...filtered].sort((a, b) => Number(b.featured) - Number(a.featured))
 
-  const currentPage = Math.max(1, Number(page) || 1)
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  // Clamp rather than render an empty grid: ?page=99 on a 10-page listing was
+  // showing "No products match these filters" next to a count of 388.
+  const currentPage = Math.min(Math.max(1, Number(page) || 1), totalPages)
   const pageItems = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
 
   /** Rebuilds the query string with one thing changed; drops the page cursor. */
