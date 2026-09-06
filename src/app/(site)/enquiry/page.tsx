@@ -38,15 +38,31 @@ export default function EnquiryPage() {
 
   if (status === 'done') {
     return (
-      <div className="mx-auto max-w-lg px-4 py-24 text-center">
-        <h1 className="text-2xl font-semibold text-neutral-900">Enquiry sent</h1>
-        <p className="mt-2 text-neutral-600">
-          Thanks — we've received your enquiry{enquiryNumber ? ` (${enquiryNumber})` : ''}. Our team will get back to
-          you with a quote shortly.
-        </p>
-        <Link href="/products" className="mt-6 inline-block rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-dark">
-          Continue browsing
-        </Link>
+      <div className="bg-white">
+        <div className="mx-auto max-w-lg px-4 py-20 text-center">
+          <span className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-green-50 text-green-600">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+          </span>
+          <h1 className="font-heading text-2xl font-bold text-neutral-900">Enquiry sent</h1>
+          {enquiryNumber && (
+            <p className="mt-2 text-sm text-neutral-500">
+              Reference <span className="font-semibold text-neutral-800">{enquiryNumber}</span>
+            </p>
+          )}
+          <p className="mt-3 text-sm leading-relaxed text-neutral-600">
+            Thanks — we&apos;ve received your enquiry. Our team will get back to you with a quote shortly.
+          </p>
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+            <Link href="/products" className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-dark">
+              Continue browsing
+            </Link>
+            <Link href="/" className="rounded-lg border border-neutral-300 px-5 py-2.5 text-sm font-semibold text-neutral-700 hover:border-primary hover:text-primary">
+              Back to home
+            </Link>
+          </div>
+        </div>
       </div>
     )
   }
