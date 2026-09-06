@@ -37,6 +37,20 @@ export default async function EnquiriesPage() {
           {header: 'Email', render: (e) => <span className="text-muted">{e.email}</span>},
           {header: 'Items', render: (e) => e.item_count},
           {header: 'Status', render: (e) => <StatusBadge status={e.status} />},
+          {header: 'Owner', render: (e) => <span className="text-muted">{e.assigned_to || 'Unassigned'}</span>},
+          {
+            header: 'Follow-up',
+            render: (e) => {
+              if (!e.follow_up_at) return <span className="text-muted">—</span>
+              const due = new Date(e.follow_up_at) <= new Date() && !['won', 'lost'].includes(e.status)
+              return (
+                <span className={due ? 'font-semibold text-red-600' : 'text-muted'}>
+                  {due ? 'Due · ' : ''}
+                  {formatDateTime(e.follow_up_at)}
+                </span>
+              )
+            },
+          },
           {header: 'Submitted', render: (e) => <span className="text-muted">{formatDateTime(e.created_at)}</span>},
         ]}
       />

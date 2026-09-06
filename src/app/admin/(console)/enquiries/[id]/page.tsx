@@ -1,7 +1,8 @@
 import {notFound} from 'next/navigation'
 import Link from 'next/link'
 import {revalidatePath} from 'next/cache'
-import {getEnquiry, updateEnquiryStatus, addEnquiryNote, ENQUIRY_STATUSES, type EnquiryStatus} from '@/lib/db/enquiries'
+import {getEnquiry, updateEnquiryStatus, addEnquiryNote, setEnquiryNurture, ENQUIRY_STATUSES, type EnquiryStatus} from '@/lib/db/enquiries'
+import {listUsers} from '@/lib/db/users'
 import {logAudit} from '@/lib/db/auditLog'
 import {getCurrentUser} from '@/lib/auth'
 import {StatusBadge} from '@/components/admin/StatusBadge'
@@ -29,6 +30,23 @@ async function addNote(id: string, formData: FormData) {
   revalidatePath(`/admin/enquiries/${id}`)
 }
 
+async function saveNurture(id: string, formData: FormData) {
+  'use server'
+  const assignedTo = String(formData.get('assignedTo') || '').trim() || null
+  const followUpAt = String(formData.get('followUpAt') || '').trim() || null
+  await setEnquiryNurture(id, {assignedTo, followUpAt})
+  const user = await getCurrentUser()
+  await logAudit({
+    actor: user?.email || 'console',
+    action: 'enquiry.nurture_updated',
+    target: id,
+    metadata: {assignedTo, followUpAt},
+  })
+  revalidatePath(`/admin/enquiries/${id}`)
+  revalidatePath('/admin/enquiries')
+  revalidatePath('/admin/dashboard')
+}
+
 export default async function EnquiryDetailPage({params}: {params: Promise<{id: string}>}) {
   const {id} = await params
   const enquiry = await getEnquiry(id).catch(() => null)
@@ -36,6 +54,15 @@ export default async function EnquiryDetailPage({params}: {params: Promise<{id: 
 
   const boundUpdateStatus = updateStatus.bind(null, id)
   const boundAddNote = addNote.bind(null, id)
+  const boundSaveNurture = saveNurture.bind(null, id)
+  const staff = await listUsers().catch(() => [])
+
+  const followUp = enquiry.follow_up_at ? new Date(enquiry.follow_up_at) : null
+  const overdue = !!followUp && followUp <= new Date() && !['won', 'lost'].includes(enquiry.status)
+  // <input type="datetime-local"> wants YYYY-MM-DDTHH:mm in local time.
+  const followUpValue = followUp
+    ? new Date(followUp.getTime() - followUp.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+    : ''
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -99,6 +126,46 @@ export default async function EnquiryDetailPage({params}: {params: Promise<{id: 
               <p className="whitespace-pre-wrap text-sm text-foreground/90">{enquiry.message}</p>
             </div>
           )}
+
+          {/* Nurturing: who is chasing this, and when it is next due. */}
+          <div className={`rounded-xl border bg-card p-5 ${overdue ? 'border-red-300' : 'border-border'}`}>
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <span className="text-sm font-semibold text-foreground">Follow-up</span>
+              {overdue && (
+                <span className="rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-700">Overdue</span>
+              )}
+            </div>
+            <form action={boundSaveNurture} className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_1fr_auto]">
+              <label className="block">
+                <span className="mb-1 block text-xs text-muted">Owner</span>
+                <select
+                  name="assignedTo"
+                  defaultValue={enquiry.assigned_to || ''}
+                  className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground"
+                >
+                  <option value="">Unassigned</option>
+                  {staff.map((u) => (
+                    <option key={u.id} value={u.email}>
+                      {u.name} ({u.email})
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-xs text-muted">Next contact</span>
+                <input
+                  type="datetime-local"
+                  name="followUpAt"
+                  defaultValue={followUpValue}
+                  className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground"
+                />
+              </label>
+              <button type="submit" className="self-end rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-dark">
+                Save
+              </button>
+            </form>
+            <p className="mt-2 text-xs text-muted">Leave the date empty to drop this enquiry off the follow-up list.</p>
+          </div>
 
           <div className="rounded-xl border border-border bg-card p-5">
             <div className="mb-3 text-sm font-semibold text-foreground">Internal notes</div>

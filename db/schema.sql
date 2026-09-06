@@ -50,8 +50,13 @@ create table if not exists enquiry (
   updated_at timestamptz not null default now()
 );
 
+-- Nurturing: who owns the enquiry and when it should next be chased.
+alter table enquiry add column if not exists assigned_to text;
+alter table enquiry add column if not exists follow_up_at timestamptz;
+
 create index if not exists enquiry_status_idx on enquiry(status);
 create index if not exists enquiry_created_at_idx on enquiry(created_at desc);
+create index if not exists enquiry_follow_up_idx on enquiry(follow_up_at) where follow_up_at is not null;
 
 create table if not exists enquiry_item (
   id uuid primary key default gen_random_uuid(),

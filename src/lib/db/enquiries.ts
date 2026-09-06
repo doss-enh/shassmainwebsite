@@ -13,6 +13,8 @@ export type EnquiryListRow = {
   phone: string | null
   created_at: string
   item_count: number
+  assigned_to: string | null
+  follow_up_at: string | null
 }
 
 export type EnquiryItemInput = {
@@ -85,9 +87,14 @@ export async function createEnquiry(input: CreateEnquiryInput): Promise<{id: str
 export async function listEnquiries(): Promise<EnquiryListRow[]> {
   return sql<EnquiryListRow[]>`
     select e.id, e.enquiry_number, e.status, e.customer_name, e.company, e.email, e.phone, e.created_at,
+      e.assigned_to, e.follow_up_at,
       (select count(*) from enquiry_item ei where ei.enquiry_id = e.id)::int as item_count
     from enquiry e
-    order by e.created_at desc
+    -- Anything due or overdue floats to the top; the rest stay newest-first.
+    order by
+      (e.follow_up_at is not null and e.follow_up_at <= now() and e.status not in ('won','lost')) desc,
+      e.follow_up_at asc nulls last,
+      e.created_at desc
   `
 }
 
@@ -101,6 +108,8 @@ export type EnquiryDetail = {
   phone: string | null
   message: string | null
   created_at: string
+  assigned_to: string | null
+  follow_up_at: string | null
   items: {
     id: string
     product_id: string
@@ -116,7 +125,8 @@ export type EnquiryDetail = {
 
 export async function getEnquiry(id: string): Promise<EnquiryDetail | null> {
   const [enquiry] = await sql<Omit<EnquiryDetail, 'items' | 'notes'>[]>`
-    select id, enquiry_number, status, customer_name, company, email, phone, message, created_at
+    select id, enquiry_number, status, customer_name, company, email, phone, message, created_at,
+      assigned_to, follow_up_at
     from enquiry where id = ${id}
   `
   if (!enquiry) return null
@@ -211,9 +221,14 @@ export async function getDashboardCounts(): Promise<DashboardCounts> {
 export async function getRecentEnquiries(limit = 6): Promise<EnquiryListRow[]> {
   return sql<EnquiryListRow[]>`
     select e.id, e.enquiry_number, e.status, e.customer_name, e.company, e.email, e.phone, e.created_at,
+      e.assigned_to, e.follow_up_at,
       (select count(*) from enquiry_item ei where ei.enquiry_id = e.id)::int as item_count
     from enquiry e
-    order by e.created_at desc
+    -- Anything due or overdue floats to the top; the rest stay newest-first.
+    order by
+      (e.follow_up_at is not null and e.follow_up_at <= now() and e.status not in ('won','lost')) desc,
+      e.follow_up_at asc nulls last,
+      e.created_at desc
     limit ${limit}
   `
 }
@@ -228,4 +243,34 @@ export async function getEnquiryCreatedDatesInRange(days = 14): Promise<string[]
 export async function getNeedsReplyCount(): Promise<number> {
   const [row] = await sql<{count: string}[]>`select count(*)::text as count from enquiry where status = 'new'`
   return Number(row?.count || 0)
+}
+
+
+/** Who is chasing this enquiry, and when it is next due. */
+export async function setEnquiryNurture(
+  id: string,
+  input: {assignedTo?: string | null; followUpAt?: string | null},
+) {
+  await sql`
+    update enquiry set
+      assigned_to = ${input.assignedTo ?? null},
+      follow_up_at = ${input.followUpAt ? new Date(input.followUpAt) : null},
+      updated_at = now()
+    where id = ${id}
+  `
+}
+
+export type FollowUpCounts = {due: number; upcoming: number; unassigned: number}
+
+/** Open enquiries only — a won or lost one needs no chasing. */
+export async function getFollowUpCounts(): Promise<FollowUpCounts> {
+  const [row] = await sql<FollowUpCounts[]>`
+    select
+      count(*) filter (where follow_up_at is not null and follow_up_at <= now())::int as due,
+      count(*) filter (where follow_up_at is not null and follow_up_at > now())::int as upcoming,
+      count(*) filter (where assigned_to is null)::int as unassigned
+    from enquiry
+    where status not in ('won', 'lost')
+  `
+  return row || {due: 0, upcoming: 0, unassigned: 0}
 }
