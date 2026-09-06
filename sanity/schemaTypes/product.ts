@@ -48,7 +48,14 @@ export default defineType({
     defineField({name: 'customizable', title: 'Customizable', type: 'boolean', group: 'variations'}),
     defineField({name: 'variantAxes', title: 'Variant axes', type: 'array', of: [{type: 'variantAxis'}], group: 'variations'}),
     defineField({name: 'variants', title: 'Variants', type: 'array', of: [{type: 'productVariant'}], group: 'variations'}),
-    defineField({name: 'minimumOrderQuantity', title: 'Minimum order quantity', type: 'number', group: 'variations'}),
+    defineField({
+      name: 'minimumOrderQuantity',
+      title: 'Minimum order quantity',
+      type: 'number',
+      group: 'variations',
+      initialValue: 100,
+      description: 'House default is 100. Change it here for products that differ.',
+    }),
     defineField({name: 'stockStatus', title: 'Stock status', type: 'string', options: {list: ['instock', 'outofstock', 'backorder']}, group: 'variations'}),
     defineField({name: 'priceOnRequest', title: 'Price on request', type: 'boolean', initialValue: true, group: 'variations'}),
 
