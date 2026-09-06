@@ -20,7 +20,11 @@ export default async function SiteLayout({children}: {children: React.ReactNode}
     <EnquiryCartProvider>
       <div className="site-theme flex min-h-screen flex-col bg-white">
         <div className="site-hero-gradient flex flex-1 flex-col">
-          <SiteHeader />
+          {/* Sticky, and carrying the gradient itself so it stays legible
+              once it detaches from the hero band behind it. */}
+          <div className="site-hero-gradient sticky top-0 z-50 shadow-sm">
+            <SiteHeader />
+          </div>
           <main className="flex-1">{children}</main>
         </div>
         <Footer />
