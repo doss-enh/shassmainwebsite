@@ -63,7 +63,7 @@ export const categoryCountQuery = groq`count(*[_type == "category"])`
 export const allPostsQuery = groq`*[_type == "post"] | order(publishedAt desc) { _id, title, slug, excerpt, publishedAt, mainImage, author, category }`
 export const postBySlugQuery = groq`*[_type == "post" && slug.current == $slug][0]`
 export const allPagesQuery = groq`*[_type == "page"] | order(title asc) { _id, title, slug }`
-export const pageBySlugQuery = groq`*[_type == "page" && slug.current == $slug][0]`
+export const pageBySlugQuery = groq`*[_type == "page" && slug.current == $slug][0]`  // includes body + gallery
 export const allFaqsQuery = groq`*[_type == "faq"] | order(sortOrder asc) { _id, question, answer, category }`
 export const activeBannersQuery = groq`*[_type == "banner" && active == true && placement == $placement] | order(sortOrder asc)`
 export const allBannersQuery = groq`*[_type == "banner"] | order(sortOrder asc) { _id, title, placement, active, image }`

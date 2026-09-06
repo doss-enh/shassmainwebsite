@@ -13,6 +13,7 @@ import {fileURLToPath} from 'node:url'
 import {createClient} from '@sanity/client'
 import {parse as parseHtml} from 'node-html-parser'
 import {config} from 'dotenv'
+import {createConverter} from './lib/html-to-portable-text.mjs'
 
 config({path: path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '.env.local'), quiet: true})
 const APPLY = process.argv.includes('--apply')
@@ -28,9 +29,6 @@ const client = createClient({
 const SITE = 'https://www.shassgift.com'
 // Blog "categories" share the /blog/ prefix with real posts; skip them.
 const CATEGORY_SLUGS = new Set(['technology', 'premiums', 'stationery', 'drinkware', 'bags', 'apparels', 'kids', 'care', 'leisure'])
-
-let keySeed = 0
-const key = () => `k${(keySeed++).toString(36)}`
 
 const get = async (url) => {
   for (let attempt = 1; ; attempt++) {
@@ -57,93 +55,8 @@ for (let page = 1; page <= 12; page++) {
 console.log(`[blog] ${slugs.size} posts found on the live index`)
 
 // ---------- convert ----------
-const INLINE_MARK = {STRONG: 'strong', B: 'strong', EM: 'em', I: 'em', U: 'underline', CODE: 'code'}
-
-/** Flattens an element's inline children into Portable Text spans + link marks. */
-function spansOf(node, marks = [], defs = []) {
-  const spans = []
-  for (const child of node.childNodes) {
-    if (child.nodeType === 3) {
-      const text = child.rawText
-        .replace(/&nbsp;/g, ' ')
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&quot;/g, '"')
-        .replace(/&#39;|&rsquo;/g, "'")
-      if (text.trim()) spans.push({_type: 'span', _key: key(), text, marks: [...marks]})
-      continue
-    }
-    const tag = child.tagName
-    if (!tag) continue
-    if (tag === 'A') {
-      const href = child.getAttribute('href')
-      if (href) {
-        const mk = key()
-        defs.push({_type: 'link', _key: mk, href: href.startsWith('/') ? SITE + href : href})
-        spans.push(...spansOf(child, [...marks, mk], defs))
-        continue
-      }
-    }
-    if (tag === 'BR') continue
-    const mark = INLINE_MARK[tag]
-    spans.push(...spansOf(child, mark ? [...marks, mark] : marks, defs))
-  }
-  return spans
-}
-
-function block(node, style) {
-  const defs = []
-  const children = spansOf(node, [], defs)
-  if (!children.length) return null
-  return {_type: 'block', _key: key(), style, markDefs: defs, children}
-}
-
-function listBlocks(node, listItem) {
-  const out = []
-  for (const li of node.querySelectorAll('li')) {
-    const b = block(li, 'normal')
-    if (b) out.push({...b, listItem, level: 1})
-  }
-  return out
-}
-
-const BLOCK_TAGS = /^(P|H[1-6]|UL|OL|BLOCKQUOTE|DIV|SECTION|ARTICLE|FIGURE|TABLE)$/
-
-function toPortableText(root) {
-  const blocks = []
-  for (const el of root.childNodes) {
-    const tag = el.tagName
-    if (!tag) continue
-    if (tag === 'DIV' || tag === 'SECTION' || tag === 'ARTICLE') {
-      // CKEditor wraps posts in <div class="raw-html-embed">; descend into
-      // any container that holds block-level children rather than
-      // flattening the whole post into one paragraph.
-      const hasBlockKids = el.childNodes.some((c) => c.tagName && BLOCK_TAGS.test(c.tagName))
-      if (hasBlockKids) {
-        blocks.push(...toPortableText(el))
-      } else {
-        const b = block(el, 'normal')
-        if (b) blocks.push(b)
-      }
-    } else if (tag === 'P') {
-      const b = block(el, 'normal')
-      if (b) blocks.push(b)
-    } else if (/^H[1-6]$/.test(tag)) {
-      const level = Math.min(4, Math.max(2, Number(tag[1])))
-      const b = block(el, `h${level}`)
-      if (b) blocks.push(b)
-    } else if (tag === 'UL') {
-      blocks.push(...listBlocks(el, 'bullet'))
-    } else if (tag === 'OL') {
-      blocks.push(...listBlocks(el, 'number'))
-    } else if (tag === 'BLOCKQUOTE') {
-      const b = block(el, 'blockquote')
-      if (b) blocks.push(b)
-    }
-  }
-  return blocks
-}
+// Shared with the page importer — both read the same CKEditor markup.
+const {convert: toPortableText} = createConverter({siteUrl: SITE, onImage: () => null})
 
 const MONTHS = {Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11}
 function parseDate(text) {
