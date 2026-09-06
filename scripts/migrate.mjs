@@ -8,10 +8,11 @@ import postgres from 'postgres'
 import {readFileSync} from 'node:fs'
 import {fileURLToPath} from 'node:url'
 import path from 'node:path'
-import {config} from 'dotenv'
+import {loadEnv, describeDatabase} from './lib/load-env.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-config({path: path.join(__dirname, '..', '.env.local'), quiet: true})
+loadEnv()
+console.log(`[db] target: ${describeDatabase()}`)
 
 const connectionString = process.env.DATABASE_URL
 if (!connectionString) {

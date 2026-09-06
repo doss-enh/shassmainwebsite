@@ -5,10 +5,11 @@ import postgres from 'postgres'
 import crypto from 'node:crypto'
 import {fileURLToPath} from 'node:url'
 import path from 'node:path'
-import {config} from 'dotenv'
+import {loadEnv, describeDatabase} from './lib/load-env.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-config({path: path.join(__dirname, '..', '.env.local'), quiet: true})
+loadEnv()
+console.log(`[db] target: ${describeDatabase()}`)
 
 const name = process.env.ADMIN_NAME || 'Admin'
 const email = process.env.ADMIN_EMAIL
