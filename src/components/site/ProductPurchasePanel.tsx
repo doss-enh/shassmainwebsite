@@ -3,6 +3,7 @@
 import {useMemo, useState} from 'react'
 import {useEnquiryCart} from './EnquiryCartContext'
 import {resolveSwatch} from '@/lib/colors'
+import {whatsappEnquiryUrl} from '@/lib/whatsapp'
 
 type VariantOption = {name: string; value: string; code?: string}
 type Variant = {sku?: string; isDefault?: boolean; stockStatus?: string; options?: VariantOption[]}
@@ -24,6 +25,7 @@ export function ProductPurchasePanel({
   axes,
   variants,
   minimumOrderQuantity,
+  whatsapp,
 }: {
   productId: string
   title: string
@@ -34,6 +36,7 @@ export function ProductPurchasePanel({
   axes: Axis[]
   variants: Variant[]
   minimumOrderQuantity?: number
+  whatsapp?: string
 }) {
   const {addItem} = useEnquiryCart()
   const moq = Math.max(1, minimumOrderQuantity || 1)
@@ -63,6 +66,16 @@ export function ProductPurchasePanel({
     .map((a) => (selection[a.name] ? `${a.name}: ${selection[a.name]}` : null))
     .filter(Boolean)
     .join(', ')
+
+  // Rebuilt on every change so the message carries whatever is selected now.
+  const waUrl = whatsappEnquiryUrl(whatsapp, {
+    title,
+    sku,
+    variantCode,
+    options: Object.fromEntries(usableAxes.map((a) => [a.name, selection[a.name]]).filter(([, v]) => v)) as Record<string, string>,
+    quantity,
+    path: `/products/${slug}`,
+  })
 
   return (
     <div className="mt-6">
@@ -137,6 +150,20 @@ export function ProductPurchasePanel({
         >
           {added ? 'Added ✓' : 'Add to Quote'}
         </button>
+
+        {waUrl && (
+          <a
+            href={waUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex h-11 items-center gap-2 rounded-[3px] border border-[#25D366] px-5 text-sm font-semibold text-[#128C7E] transition-colors hover:bg-[#25D366] hover:text-white"
+          >
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2Zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 20Zm4.4-5.8c-.2-.1-1.4-.7-1.6-.8s-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1a6.5 6.5 0 0 1-3.2-2.8c-.1-.2 0-.4.1-.5l.4-.5c.1-.2.1-.3 0-.5l-.7-1.6c-.2-.4-.4-.4-.5-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4 5 5 0 0 0 2.3.5 2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.2-.2-.4-.3Z" />
+            </svg>
+            Enquire on WhatsApp
+          </a>
+        )}
       </div>
 
       {minimumOrderQuantity && minimumOrderQuantity > 1 && (

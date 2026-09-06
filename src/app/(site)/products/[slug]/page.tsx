@@ -83,7 +83,7 @@ export default async function ProductDetailPage({params}: {params: Promise<{slug
   const product = await getProduct(slug)
   if (!product) notFound()
 
-  const settings = await client.fetch<{productAssurances?: Assurance[]}>(siteSettingsQuery).catch(() => null)
+  const settings = await client.fetch<{productAssurances?: Assurance[]; whatsapp?: string}>(siteSettingsQuery).catch(() => null)
   const assurances = settings?.productAssurances?.length ? settings.productAssurances : DEFAULT_ASSURANCES
 
   const images = [product.featuredImage, ...(product.gallery || [])].filter(Boolean)
@@ -128,6 +128,7 @@ export default async function ProductDetailPage({params}: {params: Promise<{slug
               axes={product.variantAxes || []}
               variants={product.variants || []}
               minimumOrderQuantity={product.minimumOrderQuantity}
+              whatsapp={settings?.whatsapp}
             />
 
             <div className="mt-6 space-y-1.5 text-[13px] text-neutral-600">
