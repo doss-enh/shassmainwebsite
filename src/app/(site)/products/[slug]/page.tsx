@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import {notFound} from 'next/navigation'
 import {client} from '@sanity-lib/lib/client'
-import {productBySlugQuery} from '@sanity-lib/lib/queries'
+import {productBySlugQuery, siteSettingsQuery} from '@sanity-lib/lib/queries'
 import {urlFor} from '@sanity-lib/lib/image'
 import {ProductGallery} from '@/components/site/ProductGallery'
 import {ProductPurchasePanel} from '@/components/site/ProductPurchasePanel'
@@ -50,11 +50,22 @@ function ancestry(cat?: Cat): Cat[] {
 
 const catHref = (c: Cat) => (c.slug?.current ? `/products?category=${c.slug.current}` : '/products')
 
-// Matches the live product page's right-hand card.
-const ASSURANCES = [
-  {title: 'Free Shipping', text: 'For all over UAE', d: 'M3 12h11V6H3v6zm11 0h3l3 3v3h-6v-6zM7 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm10 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4z'},
-  {title: 'E - Catalogue', text: 'Promotional Products', d: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM14 2v6h6'},
-  {title: 'Secure Payment', text: 'Guarantee secure payments', d: 'M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5l-8-3z'},
+// Icon shapes stay in code — the copy is editable in Studio under
+// Site Settings, and each entry names one of these.
+const ASSURANCE_ICONS: Record<string, string> = {
+  shipping: 'M3 12h11V6H3v6zm11 0h3l3 3v3h-6v-6zM7 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm10 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4z',
+  catalogue: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM14 2v6h6',
+  secure: 'M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5l-8-3z',
+  support: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20',
+}
+
+type Assurance = {icon?: string; title?: string; text?: string}
+
+// Shown until someone fills the field in, so the card is never empty.
+const DEFAULT_ASSURANCES: Assurance[] = [
+  {icon: 'shipping', title: 'Free Shipping', text: 'For all over UAE'},
+  {icon: 'catalogue', title: 'E - Catalogue', text: 'Promotional Products'},
+  {icon: 'secure', title: 'Secure Payment', text: 'Guarantee secure payments'},
 ]
 
 export async function generateMetadata({params}: {params: Promise<{slug: string}>}) {
@@ -71,6 +82,9 @@ export default async function ProductDetailPage({params}: {params: Promise<{slug
   const {slug} = await params
   const product = await getProduct(slug)
   if (!product) notFound()
+
+  const settings = await client.fetch<{productAssurances?: Assurance[]}>(siteSettingsQuery).catch(() => null)
+  const assurances = settings?.productAssurances?.length ? settings.productAssurances : DEFAULT_ASSURANCES
 
   const images = [product.featuredImage, ...(product.gallery || [])].filter(Boolean)
   const heroImage = urlFor(images[0])?.width(700).height(700).url()
@@ -143,10 +157,10 @@ export default async function ProductDetailPage({params}: {params: Promise<{slug
 
           <aside className="rounded-md bg-[#f7f8fa] p-5">
             <ul className="space-y-6">
-              {ASSURANCES.map((a) => (
-                <li key={a.title} className="flex gap-3">
+              {assurances.map((a, i) => (
+                <li key={`${a.title}-${i}`} className="flex gap-3">
                   <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="mt-0.5 shrink-0 text-primary">
-                    <path d={a.d} />
+                    <path d={ASSURANCE_ICONS[a.icon || 'catalogue'] || ASSURANCE_ICONS.catalogue} />
                   </svg>
                   <div>
                     <div className="font-heading text-[15px] font-bold text-neutral-900">{a.title}</div>

@@ -63,6 +63,26 @@ export default defineType({
         'Controls the Product Categories flyout. Leave empty to fall back to every top-level category by sort order.',
     }),
 
+    defineField({
+      name: 'productAssurances',
+      title: 'Product page assurances',
+      type: 'array',
+      group: 'announcements',
+      description: 'The three reassurance points beside every product. Icon is one of: shipping, catalogue, secure, support.',
+      of: [
+        {
+          type: 'object',
+          name: 'assurance',
+          fields: [
+            {name: 'icon', type: 'string', options: {list: ['shipping', 'catalogue', 'secure', 'support']}},
+            {name: 'title', type: 'string'},
+            {name: 'text', type: 'string'},
+          ],
+          preview: {select: {title: 'title', subtitle: 'text'}},
+        },
+      ],
+    }),
+
     defineField({name: 'announcementsEnabled', title: 'Show announcement bar', type: 'boolean', group: 'announcements'}),
     defineField({name: 'announcements', title: 'Announcement messages', type: 'array', of: [{type: 'string'}], group: 'announcements'}),
     defineField({
