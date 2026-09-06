@@ -46,8 +46,6 @@ export const navIconMap: Record<string, LucideIcon> = {
   '/admin/settings/analytics': BarChart3,
   '/admin/settings/spam': ShieldCheck,
   '/admin/settings/smtp': Mail,
-  '/admin/settings/tax': Percent,
-  '/admin/settings/payments': CreditCard,
   '/admin/settings/webhooks': Link2,
   '/admin/settings/technical': Terminal,
   '/admin/settings/redirects': ArrowRightLeft,

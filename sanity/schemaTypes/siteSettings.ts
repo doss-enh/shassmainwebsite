@@ -2,7 +2,7 @@ import {defineField, defineType} from 'sanity'
 
 // Matches the real, already-populated siteSettings singleton in this
 // project (siteName, address, benefits, announcements, etc. below). The
-// extra groups (analytics/spam/smtp/tax/payments/technical) are additive —
+// extra groups (analytics/spam/smtp/technical) are additive —
 // operational config the console needs that this document didn't carry yet.
 export default defineType({
   name: 'siteSettings',
@@ -14,8 +14,6 @@ export default defineType({
     {name: 'analytics', title: 'Analytics & Tags'},
     {name: 'spam', title: 'Spam Protection'},
     {name: 'smtp', title: 'Email / SMTP'},
-    {name: 'tax', title: 'Tax'},
-    {name: 'payments', title: 'Payments'},
     {name: 'technical', title: 'Technical'},
   ],
   fields: [
@@ -100,13 +98,6 @@ export default defineType({
     defineField({name: 'smtpUser', title: 'SMTP username', type: 'string', group: 'smtp'}),
     defineField({name: 'fromEmail', title: 'From email address', type: 'string', group: 'smtp'}),
     defineField({name: 'notifyEmails', title: 'Notify on new enquiry (emails)', type: 'array', of: [{type: 'string'}], group: 'smtp'}),
-
-    defineField({name: 'taxEnabled', title: 'Show tax on quotes', type: 'boolean', group: 'tax'}),
-    defineField({name: 'taxLabel', title: 'Tax label', type: 'string', group: 'tax'}),
-    defineField({name: 'taxRate', title: 'Tax rate (%)', type: 'number', group: 'tax'}),
-
-    defineField({name: 'paymentsNote', title: 'Payment terms note', type: 'text', group: 'payments'}),
-    defineField({name: 'bankDetails', title: 'Bank details (for quotes)', type: 'text', group: 'payments'}),
 
     defineField({name: 'maintenanceMode', title: 'Maintenance mode', type: 'boolean', group: 'technical'}),
     defineField({name: 'robotsTxt', title: 'robots.txt override', type: 'text', group: 'technical'}),

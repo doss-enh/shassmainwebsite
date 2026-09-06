@@ -9,8 +9,6 @@ const tabs = [
   {label: 'Analytics & tags', href: '/admin/settings/analytics'},
   {label: 'Spam protection', href: '/admin/settings/spam'},
   {label: 'Email / SMTP', href: '/admin/settings/smtp'},
-  {label: 'Tax', href: '/admin/settings/tax'},
-  {label: 'Payments', href: '/admin/settings/payments'},
   {label: 'Webhooks', href: '/admin/settings/webhooks'},
   {label: 'Technical', href: '/admin/settings/technical'},
   {label: 'Redirects', href: '/admin/settings/redirects'},
