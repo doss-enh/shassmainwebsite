@@ -14,8 +14,9 @@ import {groq} from 'next-sanity'
 // query is never cached and refetches on every render.
 export const allProductsQuery = groq`
   *[_type == "product" && status != "draft"] | order(_createdAt desc) {
-    _id, title, slug, sku, featured, newProduct, colors, _createdAt,
+    _id, title, slug, sku, featured, newProduct, colors, stockStatus, _createdAt,
     featuredImage, category->{name, slug},
+    "axes": variantAxes[]{name, values},
     "catSlugs": array::unique(
       [category->slug.current] + additionalCategories[]->slug.current
     )
@@ -55,6 +56,8 @@ export const categoryTreeFlatQuery = groq`*[_type == "category"]{ _id, name, slu
 // Roots carry the listing banner; descendants inherit it (see getStorefrontRoots).
 export const rootBannersQuery = groq`*[_type == "category" && !defined(parent) && defined(banner)]{ _id, name, banner }`
 export const allProductAttributesQuery = groq`*[_type == "productAttribute"] | order(name asc) { _id, name, slug, showInFilters, values }`
+// Facet order on the archive sidebar follows the order these come back in.
+export const filterAttributesQuery = groq`*[_type == "productAttribute" && showInFilters == true] | order(name asc) { _id, name, "values": values[].label }`
 
 export const productCountQuery = groq`count(*[_type == "product" && status != "draft"])`
 export const categoryCountQuery = groq`count(*[_type == "category"])`

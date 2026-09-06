@@ -1,39 +1,43 @@
-import {client} from '@sanity-lib/lib/client'
-import {allProductsQuery, categoryTreeFlatQuery, rootBannersQuery} from '@sanity-lib/lib/queries'
-import {getStorefrontRoots} from '@/lib/storefrontRoots'
-import {urlFor} from '@sanity-lib/lib/image'
-import {ProductCard} from '@/components/site/ProductCard'
-import {CatalogToolbar} from '@/components/site/CatalogToolbar'
-import {buildCategoryTree, type CategoryNode, type FlatCategory} from '@/lib/categoryTree'
 import Link from 'next/link'
-import clsx from 'clsx'
+import {client} from '@sanity-lib/lib/client'
+import {allProductsQuery, categoryTreeFlatQuery, filterAttributesQuery} from '@sanity-lib/lib/queries'
+import {getStorefrontRoots} from '@/lib/storefrontRoots'
+import {buildCategoryTree, type CategoryNode, type FlatCategory} from '@/lib/categoryTree'
+import {buildFacets, matchesSelection, inStock, selectionFromParams} from '@/lib/facets'
+import {ArchiveFilters} from '@/components/site/ArchiveFilters'
+import {ArchiveProductCard} from '@/components/site/ArchiveProductCard'
+import {Breadcrumb} from '@/components/site/Breadcrumb'
 
 export const revalidate = 60
 
 type Product = {
   _id: string
   title: string
-  _createdAt?: string
   sku?: string
-  newProduct?: boolean
   slug?: {current: string}
   featuredImage?: any
-  category?: {name: string; slug?: {current: string}}
-  catSlugs?: (string | null)[]
   colors?: string[]
+  stockStatus?: string
+  featured?: boolean
+  _createdAt?: string
+  catSlugs?: (string | null)[]
+  axes?: {name: string; values?: string[]}[]
+  category?: {name: string; slug?: {current: string}}
 }
+
+type AttributeDef = {_id: string; name: string; values: string[]}
 
 async function getData() {
   try {
-    const [products, topLevel, flat, banners] = await Promise.all([
+    const [products, roots, flat, attributes] = await Promise.all([
       client.fetch<Product[]>(allProductsQuery),
       getStorefrontRoots(),
       client.fetch<FlatCategory[]>(categoryTreeFlatQuery),
-      client.fetch<{_id: string; name: string; banner?: any}[]>(rootBannersQuery),
+      client.fetch<AttributeDef[]>(filterAttributesQuery),
     ])
-    return {products, tree: buildCategoryTree(topLevel, flat), banners}
+    return {products, tree: buildCategoryTree(roots, flat), attributes}
   } catch {
-    return {products: [] as Product[], tree: [] as CategoryNode[], banners: [] as {_id: string; name: string; banner?: any}[]}
+    return {products: [] as Product[], tree: [] as CategoryNode[], attributes: [] as AttributeDef[]}
   }
 }
 
@@ -46,7 +50,7 @@ function findNode(nodes: CategoryNode[], slug: string): CategoryNode | undefined
   return undefined
 }
 
-/** Root-first path down to `slug`, as the live sidebar lists it. */
+/** Root-first path down to `slug`, for the breadcrumb. */
 function pathTo(nodes: CategoryNode[], slug: string, trail: CategoryNode[] = []): CategoryNode[] | undefined {
   for (const node of nodes) {
     const next = [...trail, node]
@@ -61,161 +65,180 @@ function flattenSlugs(node: CategoryNode): string[] {
   return [node.slug, ...node.children.flatMap(flattenSlugs)].filter((s): s is string => !!s)
 }
 
-const PAGE_SIZE = 40  // matches the live listing
+const PAGE_SIZE = 40
 
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{category?: string; q?: string; sort?: string; page?: string; view?: string}>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
-  const {category, q, sort, page, view} = await searchParams
-  const layout: 'grid' | 'list' = view === 'list' ? 'list' : 'grid'
-  const {products, tree, banners} = await getData()
+  const params = await searchParams
+  const one = (k: string) => (Array.isArray(params[k]) ? params[k]![0] : (params[k] as string | undefined))
+  const category = one('category')
+  const q = one('q')
+  const sort = one('sort') || ''
+  const stockOnly = one('stock') === '1'
+  const page = one('page')
+
+  const {products, tree, attributes} = await getData()
+  const attributeNames = attributes.map((a) => a.name)
+  const selection = selectionFromParams(params, attributeNames)
 
   const activeNode = category ? findNode(tree, category) : undefined
+  const trail = activeNode?.slug ? pathTo(tree, activeNode.slug) || [] : []
   const activeSlugs = activeNode ? new Set(flattenSlugs(activeNode)) : null
 
-  // Live lists a product under every category it is assigned to, not just
-  // its primary one — a USB drive filed under Metal USB and Eco-Friendly USB
-  // shows on both listings.
-  let filtered = activeSlugs
+  // Scope first: facet counts describe this category, not the whole catalogue.
+  let inCategory = activeSlugs
     ? products.filter((p) => (p.catSlugs || [p.category?.slug?.current]).some((s) => s && activeSlugs.has(s)))
     : products
   if (q) {
     const needle = q.toLowerCase()
-    filtered = filtered.filter((p) => p.title.toLowerCase().includes(needle))
+    inCategory = inCategory.filter((p) => p.title.toLowerCase().includes(needle))
   }
 
-  // Same five orderings the live toolbar offers.
+  const facets = buildFacets(inCategory, attributes.map((a) => ({name: a.name, values: a.values || []})), selection, stockOnly)
+
+  let filtered = inCategory.filter((p) => (!stockOnly || inStock(p)) && matchesSelection(p, selection))
+
   const byDate = (a: Product, b: Product) => Date.parse(a._createdAt || '') - Date.parse(b._createdAt || '')
   if (sort === 'name_asc') filtered = [...filtered].sort((a, b) => a.title.localeCompare(b.title))
   else if (sort === 'name_desc') filtered = [...filtered].sort((a, b) => b.title.localeCompare(a.title))
   else if (sort === 'date_asc') filtered = [...filtered].sort(byDate)
   else if (sort === 'date_desc') filtered = [...filtered].sort((a, b) => byDate(b, a))
+  else filtered = [...filtered].sort((a, b) => Number(b.featured) - Number(a.featured))
 
   const currentPage = Math.max(1, Number(page) || 1)
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const pageItems = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
 
+  /** Rebuilds the query string with one thing changed; drops the page cursor. */
+  function href(changes: Record<string, string | string[] | undefined>) {
+    const next = new URLSearchParams()
+    if (category) next.set('category', category)
+    if (q) next.set('q', q)
+    if (sort) next.set('sort', sort)
+    if (stockOnly) next.set('stock', '1')
+    for (const [name, values] of Object.entries(selection)) for (const v of values) next.append(name, v)
+
+    for (const [key, value] of Object.entries(changes)) {
+      next.delete(key)
+      if (Array.isArray(value)) value.forEach((v) => next.append(key, v))
+      else if (value) next.set(key, value)
+    }
+    next.delete('page')
+    const qs = next.toString()
+    return qs ? `/products?${qs}` : '/products'
+  }
+
+  function toggleValueHref(name: string, value: string) {
+    const current = selection[name] || []
+    const next = current.includes(value) ? current.filter((v) => v !== value) : [...current, value]
+    return href({[name]: next})
+  }
+
   function pageHref(n: number) {
-    const params = new URLSearchParams()
-    if (category) params.set('category', category)
-    if (q) params.set('q', q)
-    if (sort) params.set('sort', sort)
-    if (view) params.set('view', view)
-    if (n > 1) params.set('page', String(n))
-    const qs = params.toString()
-    return qs ? `/products?${qs}` : '/products'
+    const base = href({})
+    if (n <= 1) return base
+    return `${base}${base.includes('?') ? '&' : '?'}page=${n}`
   }
 
-  function toolbarHref({sort: nextSort, view: nextView}: {sort?: string; view?: string}) {
-    const params = new URLSearchParams()
-    if (category) params.set('category', category)
-    if (q) params.set('q', q)
-    if (nextSort) params.set('sort', nextSort)
-    if (nextView) params.set('view', nextView)
-    const qs = params.toString()
-    return qs ? `/products?${qs}` : '/products'
-  }
-
-  const heroImages = (activeNode ? filtered : products)
-    .slice(0, 5)
-    .map((p) => urlFor(p.featuredImage)?.width(160).height(160).url())
-    .filter((u): u is string => !!u)
-
-  const trail = activeNode?.slug ? pathTo(tree, activeNode.slug) || [] : []
-  const rootBanner = trail.length ? banners.find((b) => b._id === trail[0]._id) : undefined
-  const bannerUrl = urlFor(rootBanner?.banner)?.width(2530).url()
+  const title = activeNode?.name || 'All Products'
 
   return (
     <div className="bg-white">
-      {/* Live puts a full-bleed banner here, one per root, inherited by
-          every category beneath it — not a gradient panel. */}
-      {bannerUrl && (
-        <div className="w-full">
-          <img src={bannerUrl} alt={activeNode?.name || 'Shass Gift'} className="h-auto w-full object-cover" />
-        </div>
-      )}
+      <div className="site-container">
+        <Breadcrumb
+          trail={[
+            {label: 'Collections', href: '/products'},
+            ...trail.map((c) => ({label: c.name, href: `/products?category=${c.slug}`})),
+          ]}
+        />
 
-      <div className="site-container grid grid-cols-1 gap-8 px-4 py-10 lg:grid-cols-[220px_1fr]">
-        <aside className="hidden lg:block">
-          <div className="mb-3 text-[13px] font-bold uppercase tracking-wide text-neutral-800">Product Categories</div>
-          <ul className="space-y-1.5 text-[13px]">
-            <li>
-              <Link href="/products" className={clsx('block', activeNode ? 'text-neutral-600 hover:text-primary' : 'font-semibold text-primary')}>
-                All categories
-              </Link>
-            </li>
-            {/* The live sidebar walks the ancestry down to the current
-                category, indenting a step at a time, then lists its children. */}
-            {trail.map((node, depth) => (
-              <li key={node._id} style={{paddingLeft: `${(depth + 1) * 12}px`}}>
-                <Link
-                  href={`/products?category=${node.slug}`}
-                  className={clsx(
-                    'block',
-                    activeNode?._id === node._id ? 'font-semibold text-primary' : 'text-neutral-600 hover:text-primary'
-                  )}
-                >
-                  {node.name}
-                </Link>
-              </li>
-            ))}
-            {(activeNode ? activeNode.children : tree).map((child) => (
-              <li key={child._id} style={{paddingLeft: `${(trail.length + 1) * 12}px`}}>
-                <Link href={`/products?category=${child.slug}`} className="block text-neutral-600 hover:text-primary">
-                  {child.name}
-                </Link>
-              </li>
-            ))}
+        <header className="pb-6">
+          <h1 className="font-heading text-4xl font-bold text-neutral-900">{title}</h1>
+          <p className="mt-1.5 text-sm text-neutral-600">{filtered.length} products</p>
+        </header>
+
+        {/* Sub-categories of the current level, as counted pills. */}
+        {activeNode && activeNode.children.length > 0 && (
+          <ul className="mb-8 flex flex-wrap gap-3">
+            {activeNode.children.map((child) => {
+              const slugs = new Set(flattenSlugs(child))
+              const count = products.filter((p) => (p.catSlugs || []).some((s) => s && slugs.has(s))).length
+              return (
+                <li key={child._id}>
+                  <Link
+                    href={`/products?category=${child.slug}`}
+                    className="inline-block rounded-md border border-neutral-300 px-4 py-2 text-sm text-neutral-700 transition-colors hover:border-primary hover:text-primary"
+                  >
+                    {child.name} <span className="text-neutral-400">({count})</span>
+                  </Link>
+                </li>
+              )
+            })}
           </ul>
-        </aside>
+        )}
 
-        <div>
-          <CatalogToolbar sort={sort || ''} view={layout} hrefFor={toolbarHref} />
+        <div className="flex flex-col gap-10 pb-16 lg:flex-row">
+          <ArchiveFilters
+            total={filtered.length}
+            sort={sort}
+            stockOnly={stockOnly}
+            facets={facets}
+            sortHref={(value) => href({sort: value})}
+            toggleStockHref={() => href({stock: stockOnly ? undefined : '1'})}
+            toggleValueHref={toggleValueHref}
+          />
 
-          {filtered.length === 0 ? (
-            <div className="rounded-sm border border-dashed border-neutral-200 py-24 text-center text-neutral-500">No products found.</div>
-          ) : (
-            <>
-              <div className={layout === 'list' ? 'divide-y divide-neutral-200' : 'grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'}>
-                {pageItems.map((p) => (
-                  <ProductCard key={p._id} product={p} layout={layout} />
-                ))}
-              </div>
-
-              {totalPages > 1 && (
-                <div className="mt-10 flex flex-wrap items-center justify-center gap-1.5">
-                  {currentPage > 1 && (
-                    <Link href={pageHref(currentPage - 1)} className="rounded-sm border border-neutral-200 px-3 py-1.5 text-[13px] text-neutral-600 hover:border-primary hover:text-primary">
-                      ‹
-                    </Link>
-                  )}
-                  {Array.from({length: totalPages}, (_, i) => i + 1)
-                    .filter((n) => n === 1 || n === totalPages || Math.abs(n - currentPage) <= 2)
-                    .map((n, idx, arr) => (
-                      <span key={n} className="flex items-center gap-1.5">
-                        {idx > 0 && arr[idx - 1] !== n - 1 && <span className="px-1 text-neutral-400">…</span>}
-                        <Link
-                          href={pageHref(n)}
-                          className={clsx(
-                            'rounded-sm border px-3 py-1.5 text-[13px]',
-                            n === currentPage ? 'border-primary bg-primary text-white' : 'border-neutral-200 text-neutral-600 hover:border-primary hover:text-primary'
-                          )}
-                        >
-                          {n}
-                        </Link>
-                      </span>
-                    ))}
-                  {currentPage < totalPages && (
-                    <Link href={pageHref(currentPage + 1)} className="rounded-sm border border-neutral-200 px-3 py-1.5 text-[13px] text-neutral-600 hover:border-primary hover:text-primary">
-                      ›
-                    </Link>
-                  )}
+          <div className="min-w-0 flex-1">
+            {pageItems.length === 0 ? (
+              <p className="rounded-md border border-dashed border-neutral-300 py-24 text-center text-neutral-500">
+                No products match these filters.
+              </p>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 xl:grid-cols-4">
+                  {pageItems.map((p) => (
+                    <ArchiveProductCard key={p._id} product={p} />
+                  ))}
                 </div>
-              )}
-            </>
-          )}
+
+                {totalPages > 1 && (
+                  <nav className="mt-12 flex flex-wrap items-center justify-center gap-1.5" aria-label="Pagination">
+                    {currentPage > 1 && (
+                      <Link href={pageHref(currentPage - 1)} className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm text-neutral-600 hover:border-primary hover:text-primary">
+                        ‹
+                      </Link>
+                    )}
+                    {Array.from({length: totalPages}, (_, i) => i + 1)
+                      .filter((n) => n === 1 || n === totalPages || Math.abs(n - currentPage) <= 2)
+                      .map((n, idx, arr) => (
+                        <span key={n} className="flex items-center gap-1.5">
+                          {idx > 0 && arr[idx - 1] !== n - 1 && <span className="px-1 text-neutral-400">…</span>}
+                          <Link
+                            href={pageHref(n)}
+                            aria-current={n === currentPage ? 'page' : undefined}
+                            className={
+                              n === currentPage
+                                ? 'rounded-md border border-primary bg-primary px-3 py-1.5 text-sm text-white'
+                                : 'rounded-md border border-neutral-300 px-3 py-1.5 text-sm text-neutral-600 hover:border-primary hover:text-primary'
+                            }
+                          >
+                            {n}
+                          </Link>
+                        </span>
+                      ))}
+                    {currentPage < totalPages && (
+                      <Link href={pageHref(currentPage + 1)} className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm text-neutral-600 hover:border-primary hover:text-primary">
+                        ›
+                      </Link>
+                    )}
+                  </nav>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>
