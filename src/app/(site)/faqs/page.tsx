@@ -1,6 +1,8 @@
 import {client} from '@sanity-lib/lib/client'
 import {allFaqsQuery} from '@sanity-lib/lib/queries'
 import {Breadcrumb} from '@/components/site/Breadcrumb'
+import {JsonLd} from '@/components/site/JsonLd'
+import {faqJsonLd} from '@/lib/seo'
 
 export const revalidate = 300
 
@@ -19,6 +21,7 @@ export default async function FaqsPage() {
 
   return (
     <div className="bg-white">
+      <JsonLd data={faqJsonLd(faqs.map((f) => ({question: f.question, answer: f.answer})))} />
       <Breadcrumb trail={[{label: 'FAQs'}]} />
       <div className="mx-auto max-w-4xl px-4 py-16 text-center">
       <h1 className="mb-2 text-3xl font-semibold text-neutral-900">Frequently Asked Questions</h1>

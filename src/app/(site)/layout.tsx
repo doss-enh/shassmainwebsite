@@ -4,6 +4,9 @@ import {EnquiryCartProvider} from '@/components/site/EnquiryCartContext'
 import {SiteHeader} from '@/components/site/Header'
 import {Footer} from '@/components/site/Footer'
 import {FloatingWhatsApp} from '@/components/site/FloatingWhatsApp'
+import {JsonLd} from '@/components/site/JsonLd'
+import {urlFor} from '@sanity-lib/lib/image'
+import {organizationJsonLd, websiteJsonLd} from '@/lib/seo'
 
 /**
  * The gradient sits on the wrapper around the header and the page, so the
@@ -12,9 +15,17 @@ import {FloatingWhatsApp} from '@/components/site/FloatingWhatsApp'
  * the gradient below the header.
  */
 export default async function SiteLayout({children}: {children: React.ReactNode}) {
-  const settings = await client
-    .fetch<{whatsapp?: string; siteName?: string}>(siteSettingsQuery)
-    .catch(() => null)
+  const settings = await client.fetch<any>(siteSettingsQuery).catch(() => null)
+  const org = organizationJsonLd({
+    siteName: settings?.siteName,
+    legalName: settings?.legalName,
+    tagline: settings?.tagline,
+    email: settings?.email,
+    phone: settings?.phone,
+    address: settings?.address,
+    socialLinks: settings?.socialLinks,
+    logoUrl: urlFor(settings?.logo)?.width(600).url(),
+  })
 
   return (
     <EnquiryCartProvider>
@@ -29,6 +40,8 @@ export default async function SiteLayout({children}: {children: React.ReactNode}
         </div>
         <Footer />
         <FloatingWhatsApp number={settings?.whatsapp} siteName={settings?.siteName} />
+        <JsonLd data={org} />
+        <JsonLd data={websiteJsonLd(settings?.siteName)} />
       </div>
     </EnquiryCartProvider>
   )

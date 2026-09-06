@@ -7,6 +7,8 @@ import {PortableText} from '@/components/site/PortableText'
 import {Breadcrumb} from '@/components/site/Breadcrumb'
 import {ShareLinks} from '@/components/site/ShareLinks'
 import {formatDateTime} from '@/lib/format'
+import {JsonLd} from '@/components/site/JsonLd'
+import {absolute, articleJsonLd, breadcrumbJsonLd} from '@/lib/seo'
 
 export const revalidate = 300
 
@@ -35,7 +37,22 @@ export async function generateMetadata({params}: {params: Promise<{slug: string}
   const {slug} = await params
   const post = await getPost(slug)
   if (!post) return {}
-  return {title: post.title, description: post.excerpt}
+  const image = urlFor(post.mainImage)?.width(1200).height(630).url()
+  const url = absolute(`/blog/${slug}`)
+  return {
+    title: post.title,
+    description: post.excerpt,
+    alternates: {canonical: url},
+    openGraph: {
+      type: 'article',
+      url,
+      title: post.title,
+      description: post.excerpt,
+      publishedTime: post.publishedAt,
+      images: image ? [{url: image, width: 1200, height: 630}] : undefined,
+    },
+    twitter: {card: 'summary_large_image', title: post.title, description: post.excerpt, images: image ? [image] : undefined},
+  }
 }
 
 export default async function BlogPostPage({params}: {params: Promise<{slug: string}>}) {
@@ -47,6 +64,23 @@ export default async function BlogPostPage({params}: {params: Promise<{slug: str
 
   return (
     <div className="bg-white">
+      <JsonLd
+        data={articleJsonLd({
+          title: post.title,
+          slug: post.slug?.current || slug,
+          excerpt: post.excerpt,
+          image: hero || undefined,
+          publishedAt: post.publishedAt,
+          author: post.author,
+        })}
+      />
+      <JsonLd
+        data={breadcrumbJsonLd([
+          {name: 'Home', path: '/'},
+          {name: 'Blogs', path: '/blog'},
+          {name: post.title, path: `/blog/${post.slug?.current || slug}`},
+        ])}
+      />
       <Breadcrumb trail={[{label: 'Blogs', href: '/blog'}, {label: post.title}]} />
 
       <article className="mx-auto max-w-3xl px-4 pb-14">

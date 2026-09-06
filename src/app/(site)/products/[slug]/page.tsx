@@ -9,6 +9,8 @@ import {ShareLinks} from '@/components/site/ShareLinks'
 import {PortableText} from '@/components/site/PortableText'
 import {Breadcrumb} from '@/components/site/Breadcrumb'
 import {ProductCard} from '@/components/site/ProductCard'
+import {JsonLd} from '@/components/site/JsonLd'
+import {absolute, productJsonLd, breadcrumbJsonLd, faqJsonLd} from '@/lib/seo'
 
 export const revalidate = 60
 
@@ -72,9 +74,22 @@ export async function generateMetadata({params}: {params: Promise<{slug: string}
   const {slug} = await params
   const product = await getProduct(slug)
   if (!product) return {}
+  const image = urlFor(product.featuredImage)?.width(1200).height(630).url()
+  const description = product.shortDescription?.replace(/\s+/g, ' ').trim().slice(0, 160)
+  const url = absolute(`/products/${slug}`)
+
   return {
     title: product.title,
-    description: product.shortDescription?.slice(0, 160),
+    description,
+    alternates: {canonical: url},
+    openGraph: {
+      type: 'website',
+      url,
+      title: product.title,
+      description,
+      images: image ? [{url: image, width: 1200, height: 630}] : undefined,
+    },
+    twitter: {card: 'summary_large_image', title: product.title, description, images: image ? [image] : undefined},
   }
 }
 
@@ -83,7 +98,9 @@ export default async function ProductDetailPage({params}: {params: Promise<{slug
   const product = await getProduct(slug)
   if (!product) notFound()
 
-  const settings = await client.fetch<{productAssurances?: Assurance[]; whatsapp?: string}>(siteSettingsQuery).catch(() => null)
+  const settings = await client
+    .fetch<{productAssurances?: Assurance[]; whatsapp?: string; siteName?: string}>(siteSettingsQuery)
+    .catch(() => null)
   const assurances = settings?.productAssurances?.length ? settings.productAssurances : DEFAULT_ASSURANCES
 
   const images = [product.featuredImage, ...(product.gallery || [])].filter(Boolean)
@@ -96,8 +113,29 @@ export default async function ProductDetailPage({params}: {params: Promise<{slug
     if (!metaCats.some((x) => x.name === c.name)) metaCats.push(c)
   }
 
+  const productSchema = productJsonLd({
+    title: product.title,
+    slug: product.slug.current,
+    sku: product.sku,
+    description: product.shortDescription,
+    images: images.map((i) => urlFor(i)?.width(1200).url()).filter((u): u is string => !!u),
+    category: product.category?.name,
+    colors: product.colors,
+    brand: settings?.siteName,
+  })
+
   return (
     <div className="bg-white">
+      <JsonLd data={productSchema} />
+      <JsonLd
+        data={breadcrumbJsonLd([
+          {name: 'Home', path: '/'},
+          {name: 'Products', path: '/products'},
+          ...chain.map((c) => ({name: c.name, path: c.slug?.current ? `/products?category=${c.slug.current}` : '/products'})),
+          {name: product.title, path: `/products/${product.slug.current}`},
+        ])}
+      />
+      {product.faqs?.length ? <JsonLd data={faqJsonLd(product.faqs)} /> : null}
       <Breadcrumb
         trail={[
           {label: 'Products', href: '/products'},

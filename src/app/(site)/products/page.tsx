@@ -8,6 +8,8 @@ import {buildFacets, matchesSelection, inStock, selectionFromParams} from '@/lib
 import {ArchiveFilters} from '@/components/site/ArchiveFilters'
 import {ArchiveProductCard} from '@/components/site/ArchiveProductCard'
 import {Breadcrumb} from '@/components/site/Breadcrumb'
+import {JsonLd} from '@/components/site/JsonLd'
+import {itemListJsonLd, breadcrumbJsonLd} from '@/lib/seo'
 
 export const revalidate = 60
 
@@ -154,6 +156,14 @@ export default async function ProductsPage({
 
   return (
     <div className="bg-white">
+      <JsonLd data={itemListJsonLd(title, pageItems.map((p) => ({title: p.title, slug: p.slug?.current || ''})))} />
+      <JsonLd
+        data={breadcrumbJsonLd([
+          {name: 'Home', path: '/'},
+          {name: 'Collections', path: '/products'},
+          ...trail.map((c) => ({name: c.name, path: `/products?category=${c.slug}`})),
+        ])}
+      />
       <div className="site-container">
         <Breadcrumb
           trail={[
