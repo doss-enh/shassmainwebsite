@@ -31,6 +31,22 @@ const SLUGS = [
   'home-kitchen', 'electronics', 'leisure-travel', 'beauty-care', 'office-stationery', 'sports-fitness', 'fashion',
 ]
 
+// The "Header category bar" menu (location "mega") lists only this legacy
+// taxonomy, and nothing queries that location — the flyout reads
+// siteSettings.headerCategories and the nav reads location "main". It has to
+// go first or its references keep the categories alive.
+const deadMenu = await client.fetch(
+  `*[_type=="navigationMenu" && location=="mega"][0]{_id, title, "items": count(items)}`,
+)
+if (deadMenu) {
+  if (APPLY) {
+    await client.delete(deadMenu._id)
+    console.log(`  removed navigationMenu "${deadMenu.title}" (${deadMenu.items} legacy items, unused location)`)
+  } else {
+    console.log(`  would remove navigationMenu "${deadMenu.title}" (${deadMenu.items} legacy items, unused location)`)
+  }
+}
+
 for (const slug of SLUGS) {
   const doc = await client.fetch(
     `*[_type=="category" && slug.current==$slug][0]{_id, name, "products": count(*[_type=="product" && references(^._id)])}`,
