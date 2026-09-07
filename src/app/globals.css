@@ -74,27 +74,29 @@ body {
   font-family: var(--font-montserrat), system-ui, sans-serif;
 }
 
-/* Heading scale measured off shassgift.com at 1440px. Section headings are
-   24px and copy-band headings 26px, both Montserrat 700 at line-height 1.2.
-   Ours had drifted to 16px, 20px and 24px through ad-hoc Tailwind classes,
-   which is what made the page read as a different design. */
-.site-theme .site-h2 {
-  font-size: 24px;
+/* Heading scale measured off shassgift.com at 1440px. The live page runs
+   five sizes, not one, and that variation is a large part of why a
+   single-size version reads as a different design. All Montserrat 700 at
+   line-height 1.2. */
+.site-theme .site-h2,
+.site-theme .site-h2-lead,
+.site-theme .site-h2-band,
+.site-theme .site-h2-hero,
+.site-theme .site-h2-xl {
   line-height: 1.2;
   font-weight: 700;
 }
 
-.site-theme .site-h2-lead {
-  font-size: 26px;
-  line-height: 1.2;
-  font-weight: 700;
-}
+.site-theme .site-h2 { font-size: 24px; }        /* Choose Category, Featured Brands */
+.site-theme .site-h2-lead { font-size: 26px; }   /* Why Consider, Newly Added */
+.site-theme .site-h2-band { font-size: 28px; }   /* most copy bands */
+.site-theme .site-h2-hero { font-size: 30px; }   /* Largest Corporate, Trusted by */
+.site-theme .site-h2-xl { font-size: 40px; }     /* Partner with Dubai's Leading */
 
-/* The one statement the live page sets a size larger than the rest. */
-.site-theme .site-h2-hero {
-  font-size: 30px;
-  line-height: 1.2;
-  font-weight: 700;
+/* Copy-band paragraphs are 16px on live; ours were inheriting the 14px base. */
+.site-theme .site-band-copy {
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 /* The live layout runs to a 1265px container, wider than Tailwind's 6xl. */

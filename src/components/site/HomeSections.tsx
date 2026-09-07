@@ -11,14 +11,14 @@ export function CopyBand({
   tone = 'light',
   className = '',
   children,
-  size = 'lead',
+  size = 'band',
 }: {
   section?: RichSection
   tone?: 'light' | 'dark'
   className?: string
   children?: React.ReactNode
-  /** 'hero' is the one band live sets a size larger than the others. */
-  size?: 'lead' | 'hero'
+  /** Live runs five heading sizes across the homepage bands. */
+  size?: 'section' | 'lead' | 'band' | 'hero' | 'xl'
 }) {
   if (!section?.heading && !section?.body && !children) return null
   const headingTone = tone === 'dark' ? 'text-white' : 'text-site-secondary'
@@ -26,9 +26,11 @@ export function CopyBand({
 
   return (
     <section className={`site-container py-14 text-center ${className}`}>
-      {section?.heading && <h2 className={`${size === 'hero' ? 'site-h2-hero' : 'site-h2-lead'} ${headingTone}`}>{section.heading}</h2>}
+      {section?.heading && (
+        <h2 className={`site-h2${size === 'section' ? '' : `-${size}`} ${headingTone}`}>{section.heading}</h2>
+      )}
       {section?.body && (
-        <div className={`prose prose-sm mx-auto mt-4 max-w-3xl text-center ${bodyTone} prose-p:my-2`}>
+        <div className={`site-band-copy prose mx-auto mt-4 max-w-3xl text-center ${bodyTone} prose-p:my-2`}>
           <PortableText value={section.body} />
         </div>
       )}

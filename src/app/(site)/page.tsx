@@ -99,7 +99,7 @@ export default async function HomePage() {
 
       <div className="bg-white">
         {/* 2 — Intro copy */}
-        <CopyBand section={home?.introOne} />
+        <CopyBand section={home?.introOne} size="lead" />
 
         {/* 3 — Category row */}
         {categories.length > 0 && (
@@ -129,8 +129,8 @@ export default async function HomePage() {
 
         {/* 6 — Light band */}
         {(home?.exploreSection?.heading || home?.exploreSection?.body) && (
-          <div className="bg-[#f4f5fb]">
-            <CopyBand section={home.exploreSection} />
+          <div className="bg-[#f4f4f9]">
+            <CopyBand section={home.exploreSection} size="band" />
           </div>
         )}
 
@@ -139,27 +139,27 @@ export default async function HomePage() {
 
         {/* 8 — Value props */}
         {(home?.valuePropsSection?.heading || home?.valueProps?.length) && (
-          <CopyBand section={home?.valuePropsSection}>
+          <CopyBand section={home?.valuePropsSection} size="band">
             <IconCards cards={home?.valueProps} />
           </CopyBand>
         )}
 
         {/* 9 — Personalisation band */}
         {(home?.personalisationSection?.heading || home?.personalisationTags?.length) && (
-          <div className="bg-site-secondary">
-            <CopyBand section={home?.personalisationSection} tone="dark">
+          <div className="bg-[#1e3c72]">
+            <CopyBand section={home?.personalisationSection} tone="dark" size="band">
               <TagPills tags={home?.personalisationTags} />
             </CopyBand>
           </div>
         )}
 
         {/* 10 — Creativity band */}
-        <CopyBand section={home?.creativitySection} />
+        <CopyBand section={home?.creativitySection} size="band" />
 
         {/* 11 — Why businesses choose us */}
         {(home?.whyUsHeading || home?.whyUsCards?.length) && (
-          <div className="bg-neutral-800">
-            <CopyBand section={{heading: home?.whyUsHeading}} tone="dark">
+          <div className="bg-[#2c3e50]">
+            <CopyBand section={{heading: home?.whyUsHeading}} tone="dark" size="band">
               <IconCards cards={home?.whyUsCards} tone="dark" columns={4} />
             </CopyBand>
           </div>
@@ -167,7 +167,7 @@ export default async function HomePage() {
 
         {/* 12 — Closing CTA + video strip */}
         {(home?.closingSection?.heading || home?.closingCtas?.length || home?.videos?.length) && (
-          <CopyBand section={home?.closingSection}>
+          <CopyBand section={home?.closingSection} size="xl">
             <CtaButtons buttons={home?.closingCtas} />
             <VideoStrip videos={home?.videos} />
           </CopyBand>
@@ -194,14 +194,14 @@ export default async function HomePage() {
 
         {/* 14 — Clients */}
         {(home?.clientsSection?.heading || home?.clientLogos?.length) && (
-          <CopyBand section={home?.clientsSection}>
+          <CopyBand section={home?.clientsSection} size="hero">
             <ClientLogos logos={home?.clientLogos} />
           </CopyBand>
         )}
 
         {/* 15 — FAQs */}
         {faqs.length > 0 && (
-          <CopyBand section={home?.faqSection ?? {heading: 'Frequently Asked Questions'}}>
+          <CopyBand section={home?.faqSection ?? {heading: 'Frequently Asked Questions'}} size="band">
             <div className="mt-8 grid grid-cols-1 gap-3 text-left sm:grid-cols-2">
               {faqs.map((faq) => (
                 <details key={faq._id} className="group rounded-sm border border-neutral-200 bg-neutral-50 px-4 py-3">
