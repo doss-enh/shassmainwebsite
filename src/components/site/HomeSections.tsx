@@ -25,7 +25,7 @@ export function CopyBand({
 }) {
   if (!section?.heading && !section?.body && !children) return null
   const headingTone = tone === 'dark' ? 'text-white' : 'text-site-secondary'
-  const bodyTone = tone === 'dark' ? 'text-white/80' : 'text-neutral-600'
+  const bodyTone = tone === 'dark' ? 'text-[#e0e0e0]' : 'text-black'
 
   return (
     <section className={`site-container py-14 text-center ${className}`}>
@@ -38,7 +38,7 @@ export function CopyBand({
         </h2>
       )}
       {section?.body && (
-        <div className={`site-band-copy prose mx-auto mt-4 max-w-3xl text-center ${bodyTone} prose-p:my-2`}>
+        <div className={`site-band-copy prose mx-auto mt-0 max-w-none text-center ${bodyTone} prose-p:my-2`}>
           <PortableText value={section.body} />
         </div>
       )}

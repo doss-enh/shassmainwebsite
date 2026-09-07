@@ -55,8 +55,9 @@ body {
   --site-secondary: #1e3c72;
   --site-nav-text: #696969;
 
-  /* Body copy uses the system stack at 14px/1.6, as the live site does. */
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  /* Live sets Montserrat on body copy as well as headings — document.body
+     reports system-ui, but every paragraph in the content is Montserrat. */
+  font-family: var(--font-montserrat), system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   font-size: 14px;
   line-height: 1.6;
   color: var(--foreground);
@@ -88,15 +89,21 @@ body {
 }
 
 .site-theme .site-h2 { font-size: 24px; }        /* Choose Category, Featured Brands */
-.site-theme .site-h2-lead { font-size: 26px; }   /* Why Consider, Newly Added */
-.site-theme .site-h2-band { font-size: 28px; }   /* most copy bands */
-.site-theme .site-h2-hero { font-size: 30px; }   /* Largest Corporate, Trusted by */
-.site-theme .site-h2-xl { font-size: 39.2px; }   /* Partner with Dubai's Leading */
+.site-theme .site-h2-lead { font-size: 26px; margin-bottom: 15px; }   /* Why Consider, Newly Added */
+.site-theme .site-h2-band { font-size: 28px; margin-bottom: 20px; }   /* most copy bands */
+.site-theme .site-h2-hero { font-size: 30px; margin-bottom: 15px; }   /* Largest Corporate, Trusted by */
+.site-theme .site-h2-xl { font-size: 39.2px; margin-bottom: 20px; }   /* Partner with Dubai's Leading */
 
 /* Copy-band paragraphs are 16px on live; ours were inheriting the 14px base. */
 .site-theme .site-band-copy {
   font-size: 16px;
   line-height: 1.6;
+}
+
+/* Live lets band copy run to the container edge — 1288-1320px at 1440 —
+   where max-w-3xl was folding it into 768px and changing the whole rhythm. */
+.site-theme .site-band-copy p {
+  max-width: none;
 }
 
 /* The live layout runs to a 1265px container, wider than Tailwind's 6xl. */
