@@ -12,6 +12,7 @@ export function CopyBand({
   className = '',
   children,
   size = 'band',
+  headingColor,
 }: {
   section?: RichSection
   tone?: 'light' | 'dark'
@@ -19,6 +20,8 @@ export function CopyBand({
   children?: React.ReactNode
   /** Live runs five heading sizes across the homepage bands. */
   size?: 'section' | 'lead' | 'band' | 'hero' | 'xl'
+  /** Live sets a couple of bands in #212529 rather than the navy. */
+  headingColor?: string
 }) {
   if (!section?.heading && !section?.body && !children) return null
   const headingTone = tone === 'dark' ? 'text-white' : 'text-site-secondary'
@@ -27,7 +30,12 @@ export function CopyBand({
   return (
     <section className={`site-container py-14 text-center ${className}`}>
       {section?.heading && (
-        <h2 className={`site-h2${size === 'section' ? '' : `-${size}`} ${headingTone}`}>{section.heading}</h2>
+        <h2
+          className={`site-h2${size === 'section' ? '' : `-${size}`} ${headingColor ? '' : headingTone}`}
+          style={headingColor ? {color: headingColor} : undefined}
+        >
+          {section.heading}
+        </h2>
       )}
       {section?.body && (
         <div className={`site-band-copy prose mx-auto mt-4 max-w-3xl text-center ${bodyTone} prose-p:my-2`}>
@@ -114,14 +122,15 @@ export function IconCards({cards, tone = 'light', columns = 3}: {cards?: Card[];
   const cardTone =
     tone === 'dark' ? 'bg-white/5 border-white/10 text-white' : 'bg-neutral-50 border-neutral-200 text-neutral-900'
   const textTone = tone === 'dark' ? 'text-white/70' : 'text-neutral-600'
+  const titleTone = tone === 'dark' ? 'text-white' : 'text-[#1e3c72]'
 
   return (
     <div className={`mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 ${columns === 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'}`}>
       {cards.map((card, i) => (
         <div key={i} className={`rounded-sm border p-5 text-left ${cardTone}`}>
           {card.icon && <div className="text-2xl">{card.icon}</div>}
-          {card.title && <div className="mt-2 text-sm font-bold">{card.title}</div>}
-          {card.text && <p className={`mt-1 text-[13px] ${textTone}`}>{card.text}</p>}
+          {card.title && <h3 className={`site-h2 mt-2 ${titleTone}`}>{card.title}</h3>}
+          {card.text && <p className={`mt-1.5 text-sm ${textTone}`}>{card.text}</p>}
         </div>
       ))}
     </div>

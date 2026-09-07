@@ -91,7 +91,7 @@ body {
 .site-theme .site-h2-lead { font-size: 26px; }   /* Why Consider, Newly Added */
 .site-theme .site-h2-band { font-size: 28px; }   /* most copy bands */
 .site-theme .site-h2-hero { font-size: 30px; }   /* Largest Corporate, Trusted by */
-.site-theme .site-h2-xl { font-size: 40px; }     /* Partner with Dubai's Leading */
+.site-theme .site-h2-xl { font-size: 39.2px; }   /* Partner with Dubai's Leading */
 
 /* Copy-band paragraphs are 16px on live; ours were inheriting the 14px base. */
 .site-theme .site-band-copy {

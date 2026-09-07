@@ -167,7 +167,7 @@ export default async function HomePage() {
 
         {/* 12 — Closing CTA + video strip */}
         {(home?.closingSection?.heading || home?.closingCtas?.length || home?.videos?.length) && (
-          <CopyBand section={home?.closingSection} size="xl">
+          <CopyBand section={home?.closingSection} size="xl" headingColor="#212529">
             <CtaButtons buttons={home?.closingCtas} />
             <VideoStrip videos={home?.videos} />
           </CopyBand>
@@ -201,7 +201,7 @@ export default async function HomePage() {
 
         {/* 15 — FAQs */}
         {faqs.length > 0 && (
-          <CopyBand section={home?.faqSection ?? {heading: 'Frequently Asked Questions'}} size="band">
+          <CopyBand section={home?.faqSection ?? {heading: 'Frequently Asked Questions'}} size="band" headingColor="#212529">
             <div className="mt-8 grid grid-cols-1 gap-3 text-left sm:grid-cols-2">
               {faqs.map((faq) => (
                 <details key={faq._id} className="group rounded-sm border border-neutral-200 bg-neutral-50 px-4 py-3">
