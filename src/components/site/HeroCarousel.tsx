@@ -35,7 +35,7 @@ export function HeroCarousel({slides}: {slides: HeroSlide[]}) {
   const slide = slides[active]
 
   return (
-    <section className="relative w-full">
+    <section className="relative w-full bg-[#d6dee5]">
       <div className="relative overflow-hidden">
         {slide.image ? (
           <Link href={slide.href || '/products'} aria-label={slide.alt || 'Featured'}>

@@ -57,12 +57,12 @@ export function Header({items, categoryTree, siteName, contactPhone, logoUrl, so
     <div className="relative z-30">
       {/* Row 1 — logo, search, social, account, phone, cart. 80px tall to
           match the live header, with the logo at its rendered 71px. */}
-      <div className="site-container flex h-20 items-center justify-between gap-3 sm:gap-6">
+      <div className="site-container flex h-[71px] items-center justify-between gap-3 sm:gap-6">
         <MobileNav tree={categoryTree} items={items.map((i) => ({label: i.label, href: resolveHref(i)}))} phone={contactPhone} />
 
         <Link href="/" className="flex shrink-0 items-center">
           {logoUrl ? (
-            <img src={logoUrl} alt={siteName} className="h-12 w-auto object-contain sm:h-[71px]" />
+            <img src={logoUrl} alt={siteName} className="h-10 w-auto object-contain sm:h-[52px]" />
           ) : (
             <span className="text-2xl font-bold tracking-tight text-white">{siteName}</span>
           )}
@@ -101,7 +101,7 @@ export function Header({items, categoryTree, siteName, contactPhone, logoUrl, so
       </div>
 
       {/* Row 2 — categories, nav, brochure, recently viewed. 90px on the live site. */}
-      <div className="site-container hidden h-[90px] items-center gap-8 lg:flex">
+      <div className="site-container hidden h-[72px] items-center gap-8 lg:flex">
         <MegaMenu tree={categoryTree} />
 
         {/* Home is fixed; the rest come from the "main" navigation menu. */}

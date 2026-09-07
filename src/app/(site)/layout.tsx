@@ -30,14 +30,13 @@ export default async function SiteLayout({children}: {children: React.ReactNode}
   return (
     <EnquiryCartProvider>
       <div className="site-theme flex min-h-screen flex-col bg-white">
-        <div className="site-hero-gradient flex flex-1 flex-col">
-          {/* Sticky, and carrying the gradient itself so it stays legible
-              once it detaches from the hero band behind it. */}
-          <div className="site-hero-gradient sticky top-0 z-50 shadow-sm">
-            <SiteHeader />
-          </div>
-          <main className="flex-1">{children}</main>
+        {/* Live carries artwork on the 143px header band only; everything
+            below it is white. Wrapping the whole page in the gradient, as
+            this did, tinted every gap between sections. */}
+        <div className="site-header-band sticky top-0 z-50 shadow-sm">
+          <SiteHeader />
         </div>
+        <main className="flex-1 bg-white">{children}</main>
         <Footer />
         <FloatingWhatsApp number={settings?.whatsapp} siteName={settings?.siteName} />
         <JsonLd data={org} />

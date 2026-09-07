@@ -107,9 +107,18 @@ body {
   padding-inline: 1rem;
 }
 
-/* Runs left-to-right indigo → blue → teal across the full width, the way
-   the live site's banner band does, rather than reaching teal only in the
-   far corner as a steep diagonal would. */
+/* The live header is not a CSS gradient — it is a 1920x146 artwork strip
+   (storage/bbn.jpg) behind a 143px band. Any linear-gradient is an
+   approximation of a bitmap and will never line up, which is why the header
+   read as the wrong colour however the stops were tuned. */
+.site-header-band {
+  background-image: url('/header-band.jpg');
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+}
+
+/* Kept for the few interior headers that still want a flat band. */
 .site-hero-gradient {
   background: linear-gradient(100deg, #2d2e83 0%, #2b4d9b 35%, #2b7ba8 65%, #17a398 100%);
 }
