@@ -54,7 +54,9 @@ function resolveHref(item: NavItem) {
  */
 export function Header({items, categoryTree, siteName, contactPhone, logoUrl, socialLinks}: Awaited<ReturnType<typeof getHeaderData>>) {
   return (
-    <div className="relative z-30">
+    <>
+      {/* Row 1 and the mobile search scroll away with the page. */}
+      <div className="site-header-band relative z-30">
       {/* Row 1 — logo, search, social, account, phone, cart. 80px tall to
           match the live header, with the logo at its rendered 71px. */}
       <div className="site-container flex h-[71px] items-center justify-between gap-3 sm:gap-6">
@@ -100,8 +102,13 @@ export function Header({items, categoryTree, siteName, contactPhone, logoUrl, so
         <SearchBar />
       </div>
 
-      {/* Row 2 — categories, nav, brochure, recently viewed. 90px on the live site. */}
-      <div className="site-container hidden h-[72px] items-center gap-8 lg:flex">
+      </div>
+
+      {/* Row 2 is the one that sticks. It repeats the band artwork, aligned to
+          the bottom of the strip, so it stays opaque once it detaches from
+          row 1 rather than letting the page show through. */}
+      <div className="site-header-band sticky top-0 z-50 shadow-md [background-position:center_bottom]">
+        <div className="site-container hidden h-[72px] items-center gap-8 lg:flex">
         <MegaMenu tree={categoryTree} />
 
         {/* Home is fixed; the rest come from the "main" navigation menu. */}
@@ -131,8 +138,9 @@ export function Header({items, categoryTree, siteName, contactPhone, logoUrl, so
             Recently Viewed
           </Link>
         </div>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 

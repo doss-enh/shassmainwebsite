@@ -33,9 +33,8 @@ export default async function SiteLayout({children}: {children: React.ReactNode}
         {/* Live carries artwork on the 143px header band only; everything
             below it is white. Wrapping the whole page in the gradient, as
             this did, tinted every gap between sections. */}
-        <div className="site-header-band sticky top-0 z-50 shadow-sm">
-          <SiteHeader />
-        </div>
+        {/* Only the nav row inside sticks — see Header. */}
+        <SiteHeader />
         <main className="flex-1 bg-white">{children}</main>
         <Footer />
         <FloatingWhatsApp number={settings?.whatsapp} siteName={settings?.siteName} />

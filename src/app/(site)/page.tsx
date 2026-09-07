@@ -105,15 +105,24 @@ export default async function HomePage() {
         {categories.length > 0 && (
           <section className="site-container py-10">
             <h2 className="site-h2 mb-5 text-[#212529]">{home?.categoryHeading || 'Choose Category'}</h2>
-            <div className="grid grid-cols-3 gap-4 sm:grid-cols-5 lg:grid-cols-9">
+            {/* Live runs this as a Slick carousel of fixed 174px tiles that
+                overflow the container, not a grid that divides it — nine
+                tiles squeezed into 1233px came out at 126px each and made the
+                whole row read smaller than the reference. A scroll-snap strip
+                gives the same geometry without a carousel dependency. */}
+            <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {categories.map((c) => {
-                const img = urlFor(c.image)?.width(180).height(180).url()
+                const img = urlFor(c.image)?.width(348).height(244).url()
                 return (
-                  <Link key={c._id} href={`/products?category=${c.slug?.current}`} className="group text-center">
-                    <div className="aspect-square overflow-hidden rounded-sm border border-neutral-200 bg-white p-2 transition-shadow group-hover:shadow-md">
-                      {img && <img src={img} alt="" className="h-full w-full object-contain" />}
+                  <Link
+                    key={c._id}
+                    href={`/products?category=${c.slug?.current}`}
+                    className="group w-[174px] shrink-0 snap-start text-center"
+                  >
+                    <div className="aspect-[174/122] overflow-hidden rounded-sm bg-[#f4f4f9] transition-shadow group-hover:shadow-md">
+                      {img && <img src={img} alt="" className="h-full w-full object-contain p-2" />}
                     </div>
-                    <div className="mt-2 truncate text-[11px] font-medium text-neutral-700 group-hover:text-primary">{c.name}</div>
+                    <div className="mt-2.5 truncate text-[13px] font-medium text-neutral-700 group-hover:text-primary">{c.name}</div>
                   </Link>
                 )
               })}
