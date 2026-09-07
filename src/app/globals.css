@@ -74,6 +74,29 @@ body {
   font-family: var(--font-montserrat), system-ui, sans-serif;
 }
 
+/* Heading scale measured off shassgift.com at 1440px. Section headings are
+   24px and copy-band headings 26px, both Montserrat 700 at line-height 1.2.
+   Ours had drifted to 16px, 20px and 24px through ad-hoc Tailwind classes,
+   which is what made the page read as a different design. */
+.site-theme .site-h2 {
+  font-size: 24px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.site-theme .site-h2-lead {
+  font-size: 26px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+/* The one statement the live page sets a size larger than the rest. */
+.site-theme .site-h2-hero {
+  font-size: 30px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
 /* The live layout runs to a 1265px container, wider than Tailwind's 6xl. */
 .site-container {
   width: 100%;

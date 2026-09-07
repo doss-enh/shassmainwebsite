@@ -104,7 +104,7 @@ export default async function HomePage() {
         {/* 3 — Category row */}
         {categories.length > 0 && (
           <section className="site-container py-10">
-            <h2 className="mb-5 text-base font-bold text-neutral-900">{home?.categoryHeading || 'Choose Category'}</h2>
+            <h2 className="site-h2 mb-5 text-[#212529]">{home?.categoryHeading || 'Choose Category'}</h2>
             <div className="grid grid-cols-3 gap-4 sm:grid-cols-5 lg:grid-cols-9">
               {categories.map((c) => {
                 const img = urlFor(c.image)?.width(180).height(180).url()
@@ -122,7 +122,7 @@ export default async function HomePage() {
         )}
 
         {/* 4 — Second intro copy block */}
-        <CopyBand section={home?.introTwo} />
+        <CopyBand section={home?.introTwo} size="hero" />
 
         {/* 5 — Featured brands */}
         <FeaturedBrands heading={home?.brandsHeading} tiles={home?.featuredBrands} />
@@ -178,7 +178,7 @@ export default async function HomePage() {
           <div className="bg-neutral-50">
             <section className="site-container py-12">
               <div className="mb-6 flex items-center justify-between">
-                <h2 className="text-base font-bold text-neutral-900">Featured products</h2>
+                <h2 className="site-h2 text-[#212529]">Featured products</h2>
                 <Link href="/products" className="text-[13px] font-medium text-primary hover:underline">
                   View all →
                 </Link>

@@ -11,11 +11,14 @@ export function CopyBand({
   tone = 'light',
   className = '',
   children,
+  size = 'lead',
 }: {
   section?: RichSection
   tone?: 'light' | 'dark'
   className?: string
   children?: React.ReactNode
+  /** 'hero' is the one band live sets a size larger than the others. */
+  size?: 'lead' | 'hero'
 }) {
   if (!section?.heading && !section?.body && !children) return null
   const headingTone = tone === 'dark' ? 'text-white' : 'text-site-secondary'
@@ -23,7 +26,7 @@ export function CopyBand({
 
   return (
     <section className={`site-container py-14 text-center ${className}`}>
-      {section?.heading && <h2 className={`text-2xl font-bold ${headingTone}`}>{section.heading}</h2>}
+      {section?.heading && <h2 className={`${size === 'hero' ? 'site-h2-hero' : 'site-h2-lead'} ${headingTone}`}>{section.heading}</h2>}
       {section?.body && (
         <div className={`prose prose-sm mx-auto mt-4 max-w-3xl text-center ${bodyTone} prose-p:my-2`}>
           <PortableText value={section.body} />
@@ -40,7 +43,7 @@ export function FeaturedBrands({heading, tiles}: {heading?: string; tiles?: Bran
   if (!tiles?.length) return null
   return (
     <section className="site-container py-10">
-      {heading && <h2 className="mb-6 text-xl font-bold text-neutral-900">{heading}</h2>}
+      {heading && <h2 className="site-h2 mb-6 text-[#212529]">{heading}</h2>}
       <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
         {tiles.map((tile, i) => {
           // Source banners are 1626×1046; keep that ratio so nothing crops oddly.
@@ -83,7 +86,7 @@ export function HighlightBand({section, image}: {section?: RichSection; image?: 
     <section className="site-hero-gradient">
       <div className="site-container grid grid-cols-1 items-center gap-10 py-16 md:grid-cols-2">
         <div className="text-white">
-          {section.heading && <h2 className="text-2xl font-bold">{section.heading}</h2>}
+          {section.heading && <h2 className="site-h2-lead">{section.heading}</h2>}
           {section.body && (
             <div className="prose prose-sm mt-4 max-w-none text-white/85 prose-p:my-3">
               <PortableText value={section.body} />
